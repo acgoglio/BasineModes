@@ -28,8 +28,8 @@ all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2
 exp='4m_NT'
 
 # Lat and lon indexes
-lat_idx = 360 #138 #358 #360
-lon_idx = 746 #331 #744 #746
+lat_idx = 138 #138 #358 #360
+lon_idx = 331 #331 #744 #746
 
 # Model time step in seconds
 dt = 3*60
@@ -39,7 +39,7 @@ n_modes = 4
 
 # Minimum peak amplitude ; min,max width ; min distance between peaks to detect peaks in Amp plots (meters,hours, points respectively)
 amp_peak_height=0.0001
-amp_peak_width=(0, 50)
+amp_peak_width=(0, 40)
 amp_peak_distance=3
 
 # Flag and threshold [h] for filtering the spectrum the threshold is also used as plot minimum 
