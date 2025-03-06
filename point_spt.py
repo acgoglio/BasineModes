@@ -38,9 +38,9 @@ dt = 3*60
 n_modes = 4  
 
 # Minimum peak amplitude ; min,max width ; min distance between peaks to detect peaks in Amp plots (meters,hours, points respectively)
-amp_peak_height=0.0001
-amp_peak_width=(0, 50)
-amp_peak_distance=3
+amp_peak_height=0.0005
+amp_peak_width=(0, 100)
+amp_peak_distance=4
 
 # Flag and threshold [h] for filtering the spectrum the threshold is also used as plot minimum 
 flag_filter='true'
@@ -109,7 +109,7 @@ freq_positive = freq_positive[freq_positive > 0]
 fft_positive = fft_positive[:len(freq_positive)]  # Match the length of fft_positive with freq_positive
 
 # Compute Power Spectrum Density (normalized)
-spt = (np.abs(fft_positive) ** 2) / spt_len**2
+##spt = (np.abs(fft_positive) ** 2) / spt_len**2
 
 # Compute Periods in hours
 periods = 1 / freq_positive / 3600  # Convert periods to hours
@@ -130,25 +130,25 @@ if flag_filter=='true':
 
 # Smooth
 if flag_smooth == 'true':
-   spt_smooth = gaussian_filter1d(spt, sigma=sigma)
+   ##spt_smooth = gaussian_filter1d(spt, sigma=sigma)
    #spt_smooth = moving_average(spt, window_size)
    amp_smooth = gaussian_filter1d(amplitudes, sigma=sigma)
 else:
-   spt_smooth = spt
+   ##spt_smooth = spt
    amp_smooth = amplitudes
 
 # Detrend
-if flag_detrend == 'true':
-   spt_det = detrend(spt_smooth)
+##if flag_detrend == 'true':
+##   spt_det = detrend(spt_smooth)
    #detrend_window_size = int(spt_len/2)
    #for i in range(0, len(spt_smooth), detrend_window_size):
    #    spt_det[i:i+window_size] = detrend(spt_smooth[i:i+window_size])
-else:
-   spt_det = spt
+##else:
+##   spt_det = spt
 
 # Found peaks in spt and in amplitude:
-peaks, _ = find_peaks(spt_smooth,height=0.000001,distance=5)
-peak_frequencies = freq_positive[peaks]
+##peaks, _ = find_peaks(spt_smooth,height=0.000001,distance=5)
+##peak_frequencies = freq_positive[peaks]
 #peak_amplitudes = spt_smoothed[peaks]
 
 amp_peaks, _ = find_peaks(amp_smooth,prominence=amp_peak_height,width=amp_peak_width,distance=amp_peak_distance)
@@ -159,13 +159,13 @@ amp_peak_amplitudes = amp_smooth[amp_peaks]
 ssh_time = np.arange(0, spt_len * dt, dt) / 3600  
 
 # Select the main spectral peaks based on spectral density
-top_indices_spt_det = np.argsort(spt_det)[-n_modes:]  # Get indices of top n_modes power values
-sorted_indices_spt_det = np.argsort(spt_det[top_indices_spt_det])[::-1]  # Sort by descending power
+##top_indices_spt_det = np.argsort(spt_det)[-n_modes:]  # Get indices of top n_modes power values
+##sorted_indices_spt_det = np.argsort(spt_det[top_indices_spt_det])[::-1]  # Sort by descending power
 
 # Extract the corresponding frequencies, periods, and amplitudes for density-based selection
-top_freq_positive_spt_det = freq_positive[top_indices_spt_det][sorted_indices_spt_det]
-top_periods_spt_det = periods[top_indices_spt_det][sorted_indices_spt_det]
-top_amplitudes_spt_det = amplitudes[top_indices_spt_det][sorted_indices_spt_det]
+##top_freq_positive_spt_det = freq_positive[top_indices_spt_det][sorted_indices_spt_det]
+##top_periods_spt_det = periods[top_indices_spt_det][sorted_indices_spt_det]
+##top_amplitudes_spt_det = amplitudes[top_indices_spt_det][sorted_indices_spt_det]
 
 # Print the main spectral modes based on spectral density
 #print("Main Spectral Modes (based on power spectrum density):")
@@ -173,14 +173,14 @@ top_amplitudes_spt_det = amplitudes[top_indices_spt_det][sorted_indices_spt_det]
 #    print(f"Mode {i+1}: Period = {top_periods_spt_det[i]:.2f} h, Freq = {top_freq_positive_spt_det[i]:.6f} Hz, Amp = {top_amplitudes_spt_det[i]:.3f} m")
 
 # Now select the main modes based on amplitude
-n_valid = min(len(amplitudes), len(freq_positive))  # Ensure valid index range
-top_indices_amp = np.argpartition(amplitudes[:n_valid], -n_modes)[-n_modes:]  # Select indices of top amplitudes
-sorted_indices_amp = np.argsort(amplitudes[top_indices_amp])[::-1]  # Sort by descending amplitude
+##n_valid = min(len(amplitudes), len(freq_positive))  # Ensure valid index range
+##top_indices_amp = np.argpartition(amplitudes[:n_valid], -n_modes)[-n_modes:]  # Select indices of top amplitudes
+##sorted_indices_amp = np.argsort(amplitudes[top_indices_amp])[::-1]  # Sort by descending amplitude
 
 # Extract the corresponding frequencies, periods, and amplitudes for amplitude-based selection
-top_freq_positive_amp = freq_positive[top_indices_amp][sorted_indices_amp]
-top_periods_amp = periods[top_indices_amp][sorted_indices_amp]
-top_amplitudes_amp = amplitudes[top_indices_amp][sorted_indices_amp]
+##top_freq_positive_amp = freq_positive[top_indices_amp][sorted_indices_amp]
+##top_periods_amp = periods[top_indices_amp][sorted_indices_amp]
+##top_amplitudes_amp = amplitudes[top_indices_amp][sorted_indices_amp]
 
 # Print the main spectral modes based on amplitude
 #print("Main Spectral Modes (based on amplitude):")
@@ -189,14 +189,14 @@ top_amplitudes_amp = amplitudes[top_indices_amp][sorted_indices_amp]
 
 #######################
 # PLOT SSH
-plt.figure(figsize=(10, 6))
-plt.title(f'SSH at lat={lats} lon={lons}')
-plt.plot(ssh_time, time_series_clean, '-', label=f'SSH at lat={lats} lon={lons}')
-plt.xlabel('Time (h)')
-plt.ylabel('SSH (m)')
-plt.grid()
-plt.legend()
-plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
+##plt.figure(figsize=(10, 6))
+##plt.title(f'SSH at lat={lats} lon={lons}')
+##plt.plot(ssh_time, time_series_clean, '-', label=f'SSH at lat={lats} lon={lons}')
+##plt.xlabel('Time (h)')
+##plt.ylabel('SSH (m)')
+##plt.grid()
+##plt.legend()
+##plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
 
 # PLOT POWER SPECTRUM
 #plt.figure(figsize=(15, 9))
@@ -279,24 +279,24 @@ plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
 #plt.savefig(f'spt_det_{lat_idx}_{lon_idx}_{exp}.png')
 
 # Amplitude plots
-plt.figure(figsize=(15, 9))
-plt.title(f'Modes amplitudes at lat={lats} lon={lons}')
-plt.loglog(periods, amplitudes, marker='o', linestyle='-', label='Modes Amplitudes')
-plt.loglog(periods, amp_smooth, marker='o', linestyle='-', label='Smoothed Modes Amplitudes')
-plt.xlabel('Period (h)')
-plt.ylabel('Mode Amplitude (m)')
-plt.axvline(24, color='black', linestyle='-')
-plt.axvline(12, color='black', linestyle='-')
-plt.axvline(6, color='black', linestyle='-')
+##plt.figure(figsize=(15, 9))
+##plt.title(f'Modes amplitudes at lat={lats} lon={lons}')
+##plt.loglog(periods, amplitudes, marker='o', linestyle='-', label='Modes Amplitudes')
+##plt.loglog(periods, amp_smooth, marker='o', linestyle='-', label='Smoothed Modes Amplitudes')
+##plt.xlabel('Period (h)')
+##plt.ylabel('Mode Amplitude (m)')
+##plt.axvline(24, color='black', linestyle='-')
+##plt.axvline(12, color='black', linestyle='-')
+##plt.axvline(6, color='black', linestyle='-')
 
 # Mark the main modes based on peak finder
-for i in range(0,len(amp_peak_frequencies)):
-    plt.axvline(1/amp_peak_frequencies[i]/3600, color='green',linestyle='--',label=f'Mode {i} (T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.3f} m)')
+##for i in range(0,len(amp_peak_frequencies)):
+    ##plt.axvline(1/amp_peak_frequencies[i]/3600, color='green',linestyle='--',label=f'Mode {i} (T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.3f} m)')
 
-plt.xlim(th_filter-1,0.5)
-plt.grid()
-plt.legend()
-plt.savefig(f'amp_{lat_idx}_{lon_idx}_{exp}.png')
+##plt.xlim(th_filter,0.5)
+##plt.grid()
+##plt.legend()
+##plt.savefig(f'amp_{lat_idx}_{lon_idx}_{exp}.png')
 
 # Amp no log plot
 #plt.figure(figsize=(15, 9))
@@ -313,4 +313,7 @@ plt.savefig(f'amp_{lat_idx}_{lon_idx}_{exp}.png')
 #plt.grid()
 #plt.legend()
 #plt.savefig(f'amp_nolog_{lat_idx}_{lon_idx}_{exp}.png')
-
+########################
+# Write values in the netCDF file
+for i in range(0,len(amp_peak_frequencies)):
+       print (f'Mode {i} T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.3f} m')
