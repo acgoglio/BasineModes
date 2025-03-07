@@ -28,8 +28,8 @@ all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2
 exp='4m_NT'
 
 # Lat and lon indexes
-lat_idx = 138 #138 #358 #360
-lon_idx = 331 #331 #744 #746
+lat_idx = 1 #138 #358 #360
+lon_idx = 1 #331 #744 #746
 
 # Model time step in seconds
 dt = 3*60

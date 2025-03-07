@@ -1,4 +1,5 @@
 import glob
+import sys
 import xarray as xr
 import netCDF4 as nc
 import numpy as np
@@ -16,12 +17,12 @@ mpl.use('Agg')
 ########
 # Inputs and outputs
 
-# Lat and lon indexes
-lat_idx = argv[0]
-lon_idx = argv[1]
+# Lat and lon indexes (if we work on single lat_lon files is always 0 0 )
+lat_idx = 0 #int(sys.argv[1])
+lon_idx = 0 #int(sys.argv[2])
 
 # Outfile
-outfile = argv[2]
+outfile = str(sys.argv[1])
 
 start_date = "20150201"
 end_date = "20150601"
@@ -129,12 +130,12 @@ ssh_time = np.arange(0, spt_len * dt, dt) / 3600
 
 ########################
 # Write values in the netCDF file
-modes_outfile = nc.Dataset(outfile, 'r+')
+modes_outfile = nc.Dataset(outfile, 'a')
 for i in range(0,7):
-       var_amp = modes_outfile.variables['m'+i+'_Amp']
-       var_T = modes_outfile.variables['m'+i+'_T']
+       var_amp = modes_outfile.variables['m'+str(i)+'_Amp']
+       var_T = modes_outfile.variables['m'+str(i)+'_T']
        try:
-          #print (f'Mode {i} T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.3f} m')
+          print (f'Mode {i} T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.4f} m')
           var_amp[lat_idx, lon_idx] = amp_peak_amplitudes[i]
           var_T[lat_idx, lon_idx] = 1/amp_peak_frequencies[i]/3600
        except:

@@ -11,10 +11,12 @@ set -e
 ########################
 # Inputs and Outputs
 
-min_lat_idx=0
-min_lon_idx=0
-max_lat_idx=3
-max_lon_idx=10
+# Lats
+min_lat_idx=138
+max_lat_idx=139
+# Lons
+min_lon_idx=331
+max_lon_idx=332
 
 work_dir='/work/cmcc/ag15419/basin_modes/'
 infile_amppha='/work/cmcc/ag15419/basin_modes/basin_modes_ini.nc'
@@ -45,6 +47,9 @@ echo "Loop on grid points:"
 for lon_idx in $( seq $min_lon_idx $max_lon_idx ); do
     for lat_idx in $( seq $min_lat_idx $max_lat_idx ); do
            echo "Working on $lat_idx $lon_idx"
-           bsub -n 1 -q s_short -P 0510 -M 40G -o out -e err python point_spt.py $lat_idx $lon_idx ${work_dir}/${outfile}_tmp.nc
+           cdo selindexbox,$lon_idx,$lon_idx,$lat_idx,$lat_idx ${work_dir}/${outfile}_tmp.nc ${work_dir}/${outfile}_${lat_idx}_${lon_idx}.nc
+           bsub -n 1 -q s_short -P 0510 -M 40G -o out -e err python point_spt.py ${work_dir}/${outfile}_${lat_idx}_${lon_idx}.nc
     done          
 done
+#cdo merge ${work_dir}/${outfile}_*_*.nc ${work_dir}/${outfile}_latlon_box.nc
+#cdo replace ${work_dir}/${outfile}_latlon_box.nc ${work_dir}/${outfile}_tmp.nc ${work_dir}/${outfile}
