@@ -18,11 +18,11 @@ mpl.use('Agg')
 # Inputs and outputs
 
 # Lat and lon indexes (if we work on single lat_lon files is always 0 0 )
-lat_idx = 0 #int(sys.argv[1])
-lon_idx = 0 #int(sys.argv[2])
+lat_idx = int(sys.argv[1])
+lon_idx = int(sys.argv[2])
 
 # Outfile
-outfile = str(sys.argv[1])
+outfile = str(sys.argv[3])
 
 start_date = "20150201"
 end_date = "20150601"
@@ -36,9 +36,9 @@ dt = 3*60
 n_modes = 4  
 
 # Minimum peak amplitude ; min,max width ; min distance between peaks to detect peaks in Amp plots (meters,hours, points respectively)
-amp_peak_height=0.0005
-amp_peak_width=(0, 100)
-amp_peak_distance=4
+amp_peak_height=0.0001
+amp_peak_width=(0, 40)
+amp_peak_distance=3
 
 # Flag and threshold [h] for filtering the spectrum the threshold is also used as plot minimum 
 flag_filter='true'

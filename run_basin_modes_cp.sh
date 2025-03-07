@@ -48,7 +48,7 @@ for lon_idx in $( seq $min_lon_idx $max_lon_idx ); do
     for lat_idx in $( seq $min_lat_idx $max_lat_idx ); do
            echo "Working on $lat_idx $lon_idx"
            cdo selindexbox,$lon_idx,$lon_idx,$lat_idx,$lat_idx ${work_dir}/${outfile}_tmp.nc ${work_dir}/${outfile}_${lat_idx}_${lon_idx}.nc
-           bsub -n 1 -q s_short -P 0510 -M 40G -o out -e err python point_spt.py ${work_dir}/${outfile}_${lat_idx}_${lon_idx}.nc
+           bsub -n 1 -q s_short -P 0510 -M 40G -o out -e err python point_spt_diag2.py ${lat_idx} ${lon_idx} ${work_dir}/${outfile}_${lat_idx}_${lon_idx}.nc
     done          
 done
 #cdo merge ${work_dir}/${outfile}_*_*.nc ${work_dir}/${outfile}_latlon_box.nc
