@@ -3,7 +3,7 @@
 # by AC Goglio (CMCC)
 # annachiara.goglio@cmcc.it
 #
-# Written: 06/02/2025
+# Written: Feb 2025
 #
 #set -u
 set -e
@@ -51,5 +51,4 @@ for lon_idx in $( seq $min_lon_idx $max_lon_idx ); do
            bsub -n 1 -q s_short -P 0510 -M 40G -o out -e err python point_spt_diag2.py ${lat_idx} ${lon_idx} ${work_dir}/${outfile}_${lat_idx}_${lon_idx}.nc
     done          
 done
-#cdo merge ${work_dir}/${outfile}_*_*.nc ${work_dir}/${outfile}_latlon_box.nc
-#cdo replace ${work_dir}/${outfile}_latlon_box.nc ${work_dir}/${outfile}_tmp.nc ${work_dir}/${outfile}
+#cdo merge ${work_dir}/${outfile}_*_*.nc ${work_dir}/${outfile}_box.nc

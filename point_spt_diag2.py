@@ -159,6 +159,11 @@ amp_peaks, _ = find_peaks(amp_smooth,prominence=amp_peak_height,width=amp_peak_w
 amp_peak_frequencies = freq_positive[amp_peaks]
 amp_peak_amplitudes = amp_smooth[amp_peaks]
 
+# Order based on amplitudes
+sorted_indices_peak_amp = np.argsort(amp_peak_amplitudes)[::-1]
+amp_peak_amplitudes_sorted = amp_peak_amplitudes[sorted_indices_peak_amp]
+amp_peak_frequencies_sorted = amp_peak_frequencies[sorted_indices_peak_amp]
+
 # Time array for SSH plot (convert to hours)
 ssh_time = np.arange(0, spt_len * dt, dt) / 3600  
 
@@ -295,8 +300,7 @@ plt.axvline(6, color='black', linestyle='-')
 
 # Mark the main modes based on peak finder
 for i in range(0,len(amp_peak_frequencies)):
-    plt.axvline(1/amp_peak_frequencies[i]/3600, color='green',linestyle='--',label=f'Mode {i} (T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.3f} m)')
-
+    plt.axvline(1/amp_peak_frequencies[i]/3600, color='green',linestyle='--',label=f'Mode {i} (T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m)')
 plt.xlim(th_filter-1,0.5)
 plt.grid()
 plt.legend()
@@ -321,16 +325,18 @@ plt.savefig(f'amp_{lat_idx}_{lon_idx}_{exp}.png')
 
 ########################
 # Write values in the netCDF file
-modes_outfile = nc.Dataset(outfile, 'a')
+out_lat_idx=0
+out_lon_idx=0
 for i in range(0,7):
        var_amp = modes_outfile.variables['m'+str(i)+'_Amp']
        var_T = modes_outfile.variables['m'+str(i)+'_T']
        try:
-          print (f'Mode {i} T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.4f} m')
-          var_amp[lat_idx, lon_idx] = amp_peak_amplitudes[i]
-          var_T[lat_idx, lon_idx] = 1/amp_peak_frequencies[i]/3600
+          print (f'Mode {i} T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m')
+          var_amp[out_lat_idx,out_lon_idx] = amp_peak_amplitudes_sorted[i]
+          var_T[out_lat_idx,out_lon_idx] = 1/amp_peak_frequencies_sorted[i]/3600
        except:
-          var_amp[lat_idx, lon_idx] = np.nan
-          var_T[lat_idx, lon_idx] = np.nan
+          var_amp[out_lat_idx,out_lon_idx] = np.nan
+          var_T[out_lat_idx,out_lon_idx] = np.nan
 
 modes_outfile.close()
+

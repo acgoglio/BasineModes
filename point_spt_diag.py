@@ -155,6 +155,11 @@ amp_peaks, _ = find_peaks(amp_smooth,prominence=amp_peak_height,width=amp_peak_w
 amp_peak_frequencies = freq_positive[amp_peaks]
 amp_peak_amplitudes = amp_smooth[amp_peaks]
 
+# Order based on amplitudes
+sorted_indices_peak_amp = np.argsort(amp_peak_amplitudes)[::-1]
+amp_peak_amplitudes_sorted = amp_peak_amplitudes[sorted_indices_peak_amp]
+amp_peak_frequencies_sorted = amp_peak_frequencies[sorted_indices_peak_amp]
+
 # Time array for SSH plot (convert to hours)
 ssh_time = np.arange(0, spt_len * dt, dt) / 3600  
 
@@ -291,7 +296,7 @@ plt.axvline(6, color='black', linestyle='-')
 
 # Mark the main modes based on peak finder
 for i in range(0,len(amp_peak_frequencies)):
-    plt.axvline(1/amp_peak_frequencies[i]/3600, color='green',linestyle='--',label=f'Mode {i} (T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.3f} m)')
+    plt.axvline(1/amp_peak_frequencies[i]/3600, color='green',linestyle='--',label=f'Mode {i} (T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m)')
 
 plt.xlim(th_filter-1,0.5)
 plt.grid()

@@ -119,27 +119,32 @@ if flag_smooth == 'true':
 else:
    amp_smooth = amplitudes
 
-# Found peaks in spt and in amplitude:
-
+# Found peaks in amplitude:
 amp_peaks, _ = find_peaks(amp_smooth,prominence=amp_peak_height,width=amp_peak_width,distance=amp_peak_distance)
 amp_peak_frequencies = freq_positive[amp_peaks]
 amp_peak_amplitudes = amp_smooth[amp_peaks]
+
+# Order based on amplitudes
+sorted_indices = np.argsort(amp_peak_amplitudes)[::-1]
+amp_peak_amplitudes_sorted = amp_peak_amplitudes[sorted_indices]
+amp_peak_frequencies_sorted = amp_peak_frequencies[sorted_indices]
 
 # Time array for SSH plot (convert to hours)
 ssh_time = np.arange(0, spt_len * dt, dt) / 3600  
 
 ########################
 # Write values in the netCDF file
-modes_outfile = nc.Dataset(outfile, 'a')
+out_lat_idx=0
+out_lon_idx=0
 for i in range(0,7):
        var_amp = modes_outfile.variables['m'+str(i)+'_Amp']
        var_T = modes_outfile.variables['m'+str(i)+'_T']
        try:
-          print (f'Mode {i} T={1/amp_peak_frequencies[i]/3600:.2f} h, Amp={amp_peak_amplitudes[i]:.4f} m')
-          var_amp[lat_idx, lon_idx] = amp_peak_amplitudes[i]
-          var_T[lat_idx, lon_idx] = 1/amp_peak_frequencies[i]/3600
+          print (f'Mode {i} T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m')
+          var_amp[out_lat_idx,out_lon_idx] = amp_peak_amplitudes_sorted[i]
+          var_T[out_lat_idx,out_lon_idx] = 1/amp_peak_frequencies_sorted[i]/3600
        except:
-          var_amp[lat_idx, lon_idx] = np.nan
-          var_T[lat_idx, lon_idx] = np.nan
+          var_amp[out_lat_idx,out_lon_idx] = np.nan
+          var_T[out_lat_idx,out_lon_idx] = np.nan
 
 modes_outfile.close()
