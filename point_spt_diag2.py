@@ -327,7 +327,8 @@ plt.savefig(f'amp_{lat_idx}_{lon_idx}_{exp}.png')
 # Write values in the netCDF file
 out_lat_idx=0
 out_lon_idx=0
-for i in range(0,7):
+modes_outfile = nc.Dataset(outfile, 'a')
+for i in range(0,8):
        var_amp = modes_outfile.variables['m'+str(i)+'_Amp']
        var_T = modes_outfile.variables['m'+str(i)+'_T']
        try:

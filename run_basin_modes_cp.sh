@@ -12,11 +12,11 @@ set -e
 # Inputs and Outputs
 
 # Lats
-min_lat_idx=138
-max_lat_idx=139
+min_lat_idx=136
+max_lat_idx=140
 # Lons
-min_lon_idx=331
-max_lon_idx=332
+min_lon_idx=330
+max_lon_idx=340
 
 work_dir='/work/cmcc/ag15419/basin_modes/'
 infile_amppha='/work/cmcc/ag15419/basin_modes/basin_modes_ini.nc'
