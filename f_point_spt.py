@@ -1,5 +1,5 @@
 
-def# -------------------------------------------
+# -------------------------------------------
 # Extract the main 8 modes at each grid point
 # -------------------------------------------
 
@@ -46,7 +46,7 @@ def amp_main_modes(lat_idx,lon_idx,ssh_ts_all,dt):
    valid_indices = np.logical_not(np.isnan(time_series_point))
    time_series_clean = time_series_point[valid_indices]
    
-    if len(time_series_clean) == 0:
+   if len(time_series_clean) == 0:
         return np.full(8, np.nan), np.full(8, np.nan)
 
    #### SPECTRUM ANALYSIS

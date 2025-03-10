@@ -70,8 +70,8 @@ for i in range(0,8):
        var_T = modes_outfile.variables['m'+str(i)+'_T']
 
        # Call the function for each point
-       for lon_idx in range (0,len(nav_lon)):
-          for lat_idx in range (0,len(nav_lat)):
+       for lon_idx in range (337,338): #(0,len(nav_lon)):
+          for lat_idx in range (139,140): # (0,len(nav_lat)):
               amp_peak_periods_main,amp_peak_amplitudes_main=f_point_spt.amp_main_modes(lat_idx,lon_idx,ssh_ts_all[:, lat_idx, lon_idx],dt)
               try:
                  print (f'Mode {i} T={amp_peak_periods_main[i]} h, Amp={amp_peak_amplitudes_main[i]} m')

@@ -28,8 +28,8 @@ all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2
 exp='4m_NT'
 
 # Lat and lon indexes
-lat_idx = 1 #138 #358 #360
-lon_idx = 1 #331 #744 #746
+lat_idx = 138 #138 #358 #360
+lon_idx = 331 #331 #744 #746
 
 # Model time step in seconds
 dt = 3*60
@@ -47,7 +47,7 @@ flag_filter='true'
 th_filter=72
 
 # Flag for spectrum detrending:
-flag_detrend='true'
+flag_detrend='false'
 
 # Flag for Gaussian smoothing of the spectrum
 flag_smooth='true'
@@ -259,16 +259,16 @@ plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
 #plt.savefig(f'spt_nolog_{lat_idx}_{lon_idx}_{exp}.png')
 #
 ## Peaks plot
-#plt.figure(figsize=(15, 9))
-#plt.title(f'Detrended Power Spectrum at lat={lats} lon={lons}')
-#plt.loglog(periods, spt_det, marker='o', linestyle='-', label='Detrended Power Spectrum')
-##if flag_smooth == 'true':
-##   plt.loglog(periods, spt_smooth, marker='o', linestyle='-', label='Smoothed Power Spectrum')
-#plt.xlabel('Period (h)')
-#plt.ylabel('Power Spectrum')
-#plt.axvline(24, color='black', linestyle='-')
-#plt.axvline(12, color='black', linestyle='-')
-#plt.axvline(6, color='black', linestyle='-')
+plt.figure(figsize=(15, 9))
+plt.title(f'Power Spectrum at lat={lats} lon={lons}')
+plt.loglog(periods, spt_det, marker='o', linestyle='-', label='Power Spectrum')
+if flag_smooth == 'true':
+   plt.loglog(periods, spt_smooth, marker='o', linestyle='-', label='Smoothed Power Spectrum')
+plt.xlabel('Period (h)')
+plt.ylabel('Power Spectrum')
+plt.axvline(24, color='black', linestyle='-')
+plt.axvline(12, color='black', linestyle='-')
+plt.axvline(6, color='black', linestyle='-')
 #
 ## Mark the main modes based on spectral density
 #for i in range(n_modes):
@@ -278,10 +278,10 @@ plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
 #for i in range(n_modes):
 #    plt.axvline(top_periods_amp[i], color='blue', linestyle='--', label=f'Amp Mode {i+1} (T = {top_periods_amp[i]:.2f} h, Amp = {top_amplitudes_amp[i]:.3f} m)')
 #
-#plt.xlim(th_filter,0.5)
-#plt.grid()
-#plt.legend()
-#plt.savefig(f'spt_det_{lat_idx}_{lon_idx}_{exp}.png')
+plt.xlim(th_filter,0.5)
+plt.grid()
+plt.legend()
+plt.savefig(f'spt_det_{lat_idx}_{lon_idx}_{exp}.png')
 
 # Amplitude plots
 plt.figure(figsize=(15, 9))
