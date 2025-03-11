@@ -1,4 +1,5 @@
 import glob
+import sys
 import xarray as xr
 import netCDF4 as nc
 import numpy as np
@@ -17,25 +18,25 @@ mpl.use('Agg')
 # Inputs and outputs
 
 start_date = "20150201"
-end_date = "20150601"
+end_date = "20150501"
 
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_barotropic_final22/EXP00/2*/model/medfs-eas9_1h_2*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2/EXP00/2016*/model/medfs-eas9_1h_2016*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/med-dev/exp/EAS9_assw_nt/202*/model/medfs-eas9_1h_202*_2D_grid_T.nc"))
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT/EXP00_2s/20*/model/medfs-eas9_1ts_2015*_2D_grid_T.nc"))
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT/EXP00/20*/model/medfs-eas9_1ts_2015*_2D_grid_T.nc"))
 
 # Exp tag
-exp='4m_NT'
+exp='50s_3m'+str(sys.argv[3])+'_nos'
 
 # Lat and lon indexes
-lat_idx = 138 #138 #358 #360
-lon_idx = 331 #331 #744 #746
+lat_idx = int(sys.argv[2]) #72 #138 #358 #360
+lon_idx = int(sys.argv[1]) #1127 #331 #744 #746
 
 # Model time step in seconds
-dt = 3*60
+dt = 50 #10 #3*60
 
 # Number of modes to analyze
-n_modes = 4  
+n_modes = 8
 
 # Minimum peak amplitude ; min,max width ; min distance between peaks to detect peaks in Amp plots (meters,hours, points respectively)
 amp_peak_height=0.0001
@@ -44,13 +45,13 @@ amp_peak_distance=3
 
 # Flag and threshold [h] for filtering the spectrum the threshold is also used as plot minimum 
 flag_filter='true'
-th_filter=72
+th_filter=48
 
 # Flag for spectrum detrending:
 flag_detrend='false'
 
 # Flag for Gaussian smoothing of the spectrum
-flag_smooth='true'
+flag_smooth='false'
 sigma=4
 #def moving_average(data, window_size):
 #    return np.convolve(data, np.ones(window_size) / window_size, mode='same')
@@ -295,10 +296,12 @@ plt.axvline(12, color='black', linestyle='-')
 plt.axvline(6, color='black', linestyle='-')
 
 # Mark the main modes based on peak finder
+mode_colors = plt.cm.rainbow(np.linspace(0, 1, len(amp_peak_frequencies)))
 for i in range(0,len(amp_peak_frequencies)):
-    plt.axvline(1/amp_peak_frequencies[i]/3600, color='green',linestyle='--',label=f'Mode {i} (T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m)')
+    plt.axvline(1/amp_peak_frequencies[i]/3600, color=mode_colors[i],linestyle='--',linewidth=4,label=f'Mode {i} (T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m)')
 
 plt.xlim(th_filter-1,0.5)
+plt.ylim(0.000001,0.1)
 plt.grid()
 plt.legend()
 plt.savefig(f'amp_{lat_idx}_{lon_idx}_{exp}.png')
