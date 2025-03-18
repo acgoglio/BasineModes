@@ -17,42 +17,49 @@ mpl.use('Agg')
 ########
 # Inputs and outputs
 
-start_date = "20150201"
-end_date = "20150501"
+start_date = "20150201" #"20160101"
+end_date = "20160901" #"20240101"
 
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_barotropic_final22/EXP00/2*/model/medfs-eas9_1h_2*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2/EXP00/2016*/model/medfs-eas9_1h_2016*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/med-dev/exp/EAS9_assw_nt/202*/model/medfs-eas9_1h_202*_2D_grid_T.nc"))
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT/EXP00/20*/model/medfs-eas9_1ts_2015*_2D_grid_T.nc"))
+
+#all_files = sorted(glob.glob("/work/cmcc/med-dev/exp/EAS9-simu/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT/EXP00/20*/model/medfs-eas9_1ts_2015*_2D_grid_T.nc"))
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT_NBF/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT_AB/EXP00/20*/model/medfs-eas9_1ts_20*_2D_grid_T.nc"))
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 
 # Exp tag
-exp='50s_3m'+str(sys.argv[3])+'_nos'
+exp='1h_AB_'+str(sys.argv[3])
 
 # Lat and lon indexes
 lat_idx = int(sys.argv[2]) #72 #138 #358 #360
 lon_idx = int(sys.argv[1]) #1127 #331 #744 #746
 
 # Model time step in seconds
-dt = 50 #10 #3*60
+dt = 3600  #45 #60*60 #50 #10 #3*60
 
 # Number of modes to analyze
-n_modes = 8
+n_modes = 12
 
 # Minimum peak amplitude ; min,max width ; min distance between peaks to detect peaks in Amp plots (meters,hours, points respectively)
-amp_peak_height=0.0001
-amp_peak_width=(0, 40)
-amp_peak_distance=3
+amp_peak_height=0.000001 #0.0001
+amp_peak_width=(0, 20)
+amp_peak_distance=81 # 31 11 3
 
 # Flag and threshold [h] for filtering the spectrum the threshold is also used as plot minimum 
 flag_filter='true'
-th_filter=48
+th_filter=41
 
 # Flag for spectrum detrending:
 flag_detrend='false'
 
-# Flag for Gaussian smoothing of the spectrum
-flag_smooth='false'
-sigma=4
+# Flag for Gaussian smoothing of the spectrum: true, false or plot (to use the original spt but add the plot of the smoothed spt)
+flag_smooth='plot'
+sigma=15 #4 11
 #def moving_average(data, window_size):
 #    return np.convolve(data, np.ones(window_size) / window_size, mode='same')
 #window_size=11
@@ -78,12 +85,15 @@ for nc2open in infile:
     ssh_ts_all = np.concatenate((ssh_ts_all, ssh_ts))
 
     if not grid_info:
-        lats = model.variables['nav_lat'][lat_idx, lon_idx]
-        lons = model.variables['nav_lon'][lat_idx, lon_idx]
+        lats = np.round(model.variables['nav_lat'][lat_idx, lon_idx],2)
+        lons = np.round(model.variables['nav_lon'][lat_idx, lon_idx],2)
         grid_info = True
+        print ('I am working on',lats,lons)
 
     #print(f"Total number of points in the SSH time series: {len(ssh_ts_all)}")
     model.close()
+
+print ("I am workign on period",start_date,"-",end_date," Freq:",dt,"s Num of inputs:",len(ssh_ts_all))
 
 # Convert SSH time series to NumPy array and remove NaNs
 time_series_point = np.array(ssh_ts_all)
@@ -96,7 +106,7 @@ time_series_clean = time_series_point[valid_indices]
 
 # Compute FFT
 spt_len = len(time_series_clean)
-#print('Time series values:', spt_len)
+print('Time series values:', spt_len)
 fft = np.fft.fft(time_series_clean)
 freq = np.fft.fftfreq(spt_len, d=dt)
 
@@ -121,6 +131,7 @@ periods = 1 / freq_positive / 3600  # Convert periods to hours
 amplitudes = (2 / spt_len) * np.abs(fft_positive)
 
 if flag_filter=='true':
+   print ('Filter = true')
    # Apply high-pass filter: Set frequencies below the threshold to zero
    high_pass_threshold = 1 / (th_filter * 3600)  # Corresponding to 48 hours in Hz
    fft_positive[freq_positive < high_pass_threshold] = 0  # Filter out frequencies below the threshold
@@ -131,15 +142,21 @@ if flag_filter=='true':
 
 # Smooth
 if flag_smooth == 'true':
+   print ('Smooth = true')
    spt_smooth = gaussian_filter1d(spt, sigma=sigma)
    #spt_smooth = moving_average(spt, window_size)
    amp_smooth = gaussian_filter1d(amplitudes, sigma=sigma)
 else:
    spt_smooth = spt
    amp_smooth = amplitudes
+   if flag_smooth == 'plot':
+      spt_smooth_2plot = gaussian_filter1d(spt, sigma=sigma)
+      #spt_smooth_2plot = moving_average(spt, window_size)
+      amp_smooth_2plot = gaussian_filter1d(amplitudes, sigma=sigma)
 
 # Detrend
 if flag_detrend == 'true':
+   print ('Detrend = true')
    spt_det = detrend(spt_smooth)
    #detrend_window_size = int(spt_len/2)
    #for i in range(0, len(spt_smooth), detrend_window_size):
@@ -148,11 +165,13 @@ else:
    spt_det = spt
 
 # Found peaks in spt and in amplitude:
-peaks, _ = find_peaks(spt_smooth,height=0.000001,distance=5)
+peaks, _ = find_peaks(spt_smooth,prominence=amp_peak_height,width=amp_peak_width,distance=amp_peak_distance)
 peak_frequencies = freq_positive[peaks]
 #peak_amplitudes = spt_smoothed[peaks]
 
 amp_peaks, _ = find_peaks(amp_smooth,prominence=amp_peak_height,width=amp_peak_width,distance=amp_peak_distance)
+#amp_peaks, _ = find_peaks(amp_smooth,distance=amp_peak_distance)
+#amp_peaks, _ = find_peaks(amp_smooth)
 amp_peak_frequencies = freq_positive[amp_peaks]
 amp_peak_amplitudes = amp_smooth[amp_peaks]
 
@@ -195,18 +214,19 @@ top_amplitudes_amp = amplitudes[top_indices_amp][sorted_indices_amp]
 
 #######################
 # PLOT SSH
-plt.figure(figsize=(10, 6))
-plt.title(f'SSH at lat={lats} lon={lons}')
-plt.plot(ssh_time, time_series_clean, '-', label=f'SSH at lat={lats} lon={lons}')
+plt.figure(figsize=(18, 8))
+plt.rc('font', size=20)
+plt.title(f'SSH at lat='+str(lats)+' lon='+str(lons))
+plt.plot(ssh_time, time_series_clean, '-', label=f'SSH at lat='+str(lats)+' lon='+str(lons))
 plt.xlabel('Time (h)')
 plt.ylabel('SSH (m)')
 plt.grid()
-plt.legend()
+plt.legend(loc='upper right')
 plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
 
 # PLOT POWER SPECTRUM
 #plt.figure(figsize=(15, 9))
-#plt.title(f'Power Spectrum at lat={lats} lon={lons}')
+#plt.title(f'Power Spectrum at lat='+str(lats)+' lon='+str(lons))
 #plt.loglog(periods, spt, marker='o', linestyle='-', label='Power Spectrum')
 #if flag_smooth == 'true':
 #   plt.loglog(periods, spt_smooth, marker='o', linestyle='-', label='Smoothed Power Spectrum')
@@ -260,16 +280,21 @@ plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
 #plt.savefig(f'spt_nolog_{lat_idx}_{lon_idx}_{exp}.png')
 #
 ## Peaks plot
-plt.figure(figsize=(15, 9))
-plt.title(f'Power Spectrum at lat={lats} lon={lons}')
+plt.figure(figsize=(18, 9))
+plt.rc('font', size=20)
+plt.title(f'Power Spectrum at lat='+str(lats)+' lon='+str(lons))
 plt.loglog(periods, spt_det, marker='o', linestyle='-', label='Power Spectrum')
 if flag_smooth == 'true':
    plt.loglog(periods, spt_smooth, marker='o', linestyle='-', label='Smoothed Power Spectrum')
+elif flag_smooth == 'plot':
+   plt.loglog(periods, spt_smooth_2plot, marker='o', linestyle='-', label='Smoothed Power Spectrum')
 plt.xlabel('Period (h)')
 plt.ylabel('Power Spectrum')
-plt.axvline(24, color='black', linestyle='-')
-plt.axvline(12, color='black', linestyle='-')
-plt.axvline(6, color='black', linestyle='-')
+
+plt.axvline(24, color='black', linestyle=':',linewidth=4)
+plt.axvline(12, color='black', linestyle=':',linewidth=4)
+plt.axvline(6, color='black', linestyle=':',linewidth=4)
+
 #
 ## Mark the main modes based on spectral density
 #for i in range(n_modes):
@@ -280,45 +305,84 @@ plt.axvline(6, color='black', linestyle='-')
 #    plt.axvline(top_periods_amp[i], color='blue', linestyle='--', label=f'Amp Mode {i+1} (T = {top_periods_amp[i]:.2f} h, Amp = {top_amplitudes_amp[i]:.3f} m)')
 #
 plt.xlim(th_filter,0.5)
+plt.text(24,plt.ylim()[0],'24', ha='center', va='top')
+plt.text(12,plt.ylim()[0],'12', ha='center', va='top')
+plt.text(6,plt.ylim()[0],'6', ha='center', va='top')
+
 plt.grid()
-plt.legend()
+plt.legend(loc='upper right')
 plt.savefig(f'spt_det_{lat_idx}_{lon_idx}_{exp}.png')
 
 # Amplitude plots
-plt.figure(figsize=(15, 9))
-plt.title(f'Modes amplitudes at lat={lats} lon={lons}')
-plt.loglog(periods, amplitudes, marker='o', linestyle='-', label='Modes Amplitudes')
-plt.loglog(periods, amp_smooth, marker='o', linestyle='-', label='Smoothed Modes Amplitudes')
-plt.xlabel('Period (h)')
-plt.ylabel('Mode Amplitude (m)')
-plt.axvline(24, color='black', linestyle='-')
-plt.axvline(12, color='black', linestyle='-')
-plt.axvline(6, color='black', linestyle='-')
+plt.figure(figsize=(27, 9))
+ax = plt.subplot(111)
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.75, box.height])
+plt.title(f'Modes amplitudes at lat='+str(lats)+' lon='+str(lons))
+
+#plt.axvline(24, color='black', linestyle=':',linewidth=4)
+#plt.axvline(12, color='black', linestyle=':',linewidth=4)
+#plt.axvline(6, color='black', linestyle=':',linewidth=4)
 
 # Mark the main modes based on peak finder
-mode_colors = plt.cm.rainbow(np.linspace(0, 1, len(amp_peak_frequencies)))
-for i in range(0,len(amp_peak_frequencies)):
-    plt.axvline(1/amp_peak_frequencies[i]/3600, color=mode_colors[i],linestyle='--',linewidth=4,label=f'Mode {i} (T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m)')
+mode_colors = plt.cm.rainbow(np.linspace(0, 1, n_modes)) #len(amp_peak_frequencies)))
+for i in range(0,n_modes): #len(amp_peak_frequencies)):
+    plt.axvline(1/amp_peak_frequencies_sorted[i]/3600, color=mode_colors[i],linestyle='--',linewidth=4,label=f'Mode {i} (T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m)')
+    #plt.text(1/amp_peak_frequencies_sorted[i]/3600, plt.ylim()[0] - 0.1, f'{1/amp_peak_frequencies_sorted[i]/3600}', ha='center', va='top')
 
-plt.xlim(th_filter-1,0.5)
-plt.ylim(0.000001,0.1)
+plt.loglog(periods, amplitudes, marker='o', linestyle='-',linewidth=4,color='black', label='Modes Amplitudes')
+if flag_smooth == 'true':
+   plt.loglog(periods, amp_smooth, marker='o', linestyle='-',linewidth=4,color='tab:green', label='Smoothed Modes Amplitudes')
+elif flag_smooth == 'plot':
+   plt.loglog(periods, amp_smooth_2plot, marker='o', linestyle='-',linewidth=4,color='tab:green', label='Smoothed Modes Amplitudes')
+plt.xlabel('Period (h)')
+plt.ylabel('Mode Amplitude (m)')
+plt.xlim(th_filter-1,0.1)
+plt.ylim(0.000001,1.0)
+plt.text(24,plt.ylim()[0],'24', ha='center', va='top')
+plt.text(12,plt.ylim()[0],'12', ha='center', va='top')
+plt.text(6,plt.ylim()[0],'6', ha='center', va='top')
 plt.grid()
-plt.legend()
+plt.legend(loc='upper right') #'center left', bbox_to_anchor=(1, 0.5))
+plt.tight_layout()
 plt.savefig(f'amp_{lat_idx}_{lon_idx}_{exp}.png')
 
 # Amp no log plot
-#plt.figure(figsize=(15, 9))
-#plt.title(f'Modes amplitudes at lat={lats} lon={lons}')
-#plt.loglog(periods, amplitudes, marker='o', linestyle='-', label='Power Spectrum')
-#plt.xlabel('Period (h)')
-#plt.ylabel('Mode Amplitude (m)')
-#plt.axvline(24, color='black', linestyle='-')
-#plt.axvline(12, color='black', linestyle='-')
-#plt.axvline(6, color='black', linestyle='-')
+plt.figure(figsize=(27, 9))
+ax = plt.subplot(111)
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.75, box.height])
+plt.title(f'Modes amplitudes at lat='+str(lats)+' lon='+str(lons))
 
-#plt.xlim(th_filter,0.5)
-#plt.yscale('linear')
-#plt.grid()
-#plt.legend()
-#plt.savefig(f'amp_nolog_{lat_idx}_{lon_idx}_{exp}.png')
+#plt.axvline(24, color='black', linestyle=':',linewidth=4)
+#plt.axvline(12, color='black', linestyle=':',linewidth=4)
+#plt.axvline(6, color='black', linestyle=':',linewidth=4)
+
+# Mark the main modes based on peak finder
+mode_colors = plt.cm.rainbow(np.linspace(0, 1, n_modes)) #len(amp_peak_frequencies)))
+for i in range(0,n_modes): #len(amp_peak_frequencies)):
+    plt.axvline(1/amp_peak_frequencies_sorted[i]/3600, color=mode_colors[i],linestyle='--',linewidth=4,label=f'Mode {i} (T={1/amp_peak_frequencies_sorted[i]/3600:.2f} h, Amp={amp_peak_amplitudes_sorted[i]:.4f} m)')
+   #plt.text(1/amp_peak_frequencies_sorted[i]/3600, plt.ylim()[0] - 0.1, f'{1/amp_peak_frequencies_sorted[i]/3600}', ha='center', va='top')
+
+plt.loglog(periods, amplitudes, marker='o', linestyle='-',linewidth=4,color='black', label='Modes Amplitudes')
+if flag_smooth == 'true':
+   plt.loglog(periods, amp_smooth, marker='o', linestyle='-',linewidth=4,color='tab:green', label='Smoothed Modes Amplitudes')
+elif flag_smooth == 'plot':
+   plt.loglog(periods, amp_smooth_2plot, marker='o', linestyle='-',linewidth=4,color='tab:green', label='Smoothed Modes Amplitudes')
+plt.xlabel('Period (h)')
+plt.ylabel('Mode Amplitude (m)')
+plt.xlim(th_filter-1,0.1)
+##plt.ylim(0.0,0.1)
+plt.ylim(0.000001,0.05)
+
+plt.text(24,plt.ylim()[0],'24', ha='center', va='top')
+plt.text(12,plt.ylim()[0],'12', ha='center', va='top')
+plt.text(6,plt.ylim()[0],'6', ha='center', va='top')
+
+plt.grid()
+plt.yscale('linear')
+#plt.xscale('linear')
+plt.legend(loc='upper right') #'center left', bbox_to_anchor=(1, 0.5))
+plt.tight_layout()
+plt.savefig(f'amp_nolog_{lat_idx}_{lon_idx}_{exp}.png')
 
