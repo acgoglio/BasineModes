@@ -10,5 +10,6 @@
 f_point_area.py
 run_basin_modes.py 
 
+# SPython point_spt_diag_MSLP.py 200 80 prova
 # while read LINE; do if [[ ${LINE:0:1} != '#' ]]; then echo $LINE ; MPython point_spt_diag.py $LINE ; fi ; done < idx_10pt.coo
 
