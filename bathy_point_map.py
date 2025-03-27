@@ -23,8 +23,8 @@ NEMO_GRID = "/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc"
 var       = "Bathymetry"
 infile    = "/work/cmcc/ag15419/VAA_paper/DATA0/bathy_meter.nc"
 outfile   = "/users_home/cmcc/ag15419/BasinModesTool/bathy_10p.png"
-minV      = "0" #"-0.1"
-maxV      = "3000" #"0.1"
+minV      = "-0.01" #"-0.1"
+maxV      = "2500" #"0.1"
 thV       = "nan"
 cmap      = "Blues" #"YlGnBu"
 inidate   = "20150101"
@@ -114,7 +114,7 @@ m = Basemap(projection='cyl',llcrnrlat=30.2,urcrnrlat=46.,\
 m.drawparallels(np.arange(30.,46.,5.), labels=[1,0,0,0], fontsize=20)
 m.drawmeridians(np.arange(-18.,36.3,5.), labels=[0,0,0,1], fontsize=20)
 
-CS   = plt.contourf(nemo_lon,nemo_lat,np.squeeze(wrk), pa, cmap=cmap, extend='max', norm=LogNorm(vmin=vmin, vmax=vmax))
+CS   = plt.contourf(nemo_lon,nemo_lat,np.squeeze(wrk), pa, cmap=cmap, extend='max') #, norm=LogNorm(vmin=vmin, vmax=vmax))
 if thV != 'nan' :
    CSth = plt.contour(nemo_lon,nemo_lat,np.squeeze(wrk), [thV], color='green')
 m.drawcoastlines(linewidth=1.0, linestyle='solid', color='k', antialiased=1, ax=None, zorder=None)
