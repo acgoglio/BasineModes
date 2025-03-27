@@ -18,7 +18,7 @@ mpl.use('Agg')
 # Inputs and outputs
 
 start_date = "20150103" #"20200101" #"20150201" #"20160101"
-end_date = "20750201" #"20250101" #"20160901" #"20240101"
+end_date = "20150201" #"20250101" #"20160901" #"20240101"
 
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_barotropic_final22/EXP00/2*/model/medfs-eas9_1h_2*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2/EXP00/2016*/model/medfs-eas9_1h_2016*_2D_grid_T.nc"))
@@ -34,13 +34,14 @@ end_date = "20750201" #"20250101" #"20160901" #"20240101"
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_NBF_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_3NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1ts_20*_2D_grid_T.nc"))
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_barotropic_final22/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 
 # Exp tag
 Med_reg=str(sys.argv[3])
-exp='ib_1h_NBF_'+Med_reg
+exp='ib_1h_BF_f_'+Med_reg
 
 # Lat and lon indexes
 lat_idx = int(sys.argv[2]) #72 #138 #358 #360
@@ -303,17 +304,17 @@ plt.grid()
 plt.legend(loc='upper right')
 plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
 
-# Plot the last 24h
-plt.figure(figsize=(18, 8))
-plt.rc('font', size=20)
-plt.title(f'SSH at lat='+str(lats)+' lon='+str(lons)+' '+Med_reg)
-plt.plot(ssh_time, time_series_clean, '-',linewidth=4, label=f'SSH at lat='+str(lats)+' lon='+str(lons))
-plt.xlim(0,96)
-plt.xlabel('Time (h)')
-plt.ylabel('SSH (m)')
-plt.grid()
-plt.legend(loc='upper right')
-plt.savefig(f'ssh_24h_{lat_idx}_{lon_idx}_{exp}.png') 
+## Plot the last 24h
+#plt.figure(figsize=(18, 8))
+#plt.rc('font', size=20)
+#plt.title(f'SSH at lat='+str(lats)+' lon='+str(lons)+' '+Med_reg)
+#plt.plot(ssh_time, time_series_clean, '-',linewidth=4, label=f'SSH at lat='+str(lats)+' lon='+str(lons))
+#plt.xlim(0,96)
+#plt.xlabel('Time (h)')
+#plt.ylabel('SSH (m)')
+#plt.grid()
+#plt.legend(loc='upper right')
+#plt.savefig(f'ssh_24h_{lat_idx}_{lon_idx}_{exp}.png') 
 
 # PLOT POWER SPECTRUM
 #plt.figure(figsize=(15, 9))
@@ -496,7 +497,7 @@ plt.xlabel('Period (h)')
 plt.ylabel('Mode Amplitude (m)')
 plt.xlim(th_filter-1,dt*1/3600)
 ##plt.ylim(0.0,0.1)
-plt.ylim(0.0000001,0.5)
+plt.ylim(0.0000001,0.02)
 
 plt.text(24,plt.ylim()[0],'24', ha='center', va='top')
 plt.text(12,plt.ylim()[0],'12', ha='center', va='top')
