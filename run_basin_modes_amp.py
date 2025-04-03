@@ -21,14 +21,15 @@ mpl.use('Agg')
 # Workdir, otufile template and otfil 
 work_dir='/work/cmcc/ag15419/basin_modes/'
 infile_amppha='/work/cmcc/ag15419/basin_modes/basin_modes_ini.nc'
-outfile=work_dir+'basin_modes.nc'
+outfile=work_dir+'basin_modes_amp.nc'
 
 # Infiles
-start_date = "20150201"
-end_date = "20150601"
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_surge_2NT/EXP00_2s/20*/model/medfs-eas9_1ts_2015*_2D_grid_T.nc"))
+start_date = "20150103"
+end_date = "20150201"
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+
 # Model time step in seconds
-dt = 3*60
+dt = 3600
 
 ###################A
 # Build the outfile:
@@ -43,24 +44,18 @@ for f in all_files:
     if start_date <= file_date <= end_date: 
             infile.append(f)
 
-# Initialize SSH time series
-#ssh_ts_list = []  
+# Read lat and lon in the first file
 nav_lat = None
 nav_lon = None
-
 first=0
 for nc2open in infile:
+  if first==0:
     model = nc.Dataset(nc2open, 'r')
-    #ssh_ts_list.append(model.variables['sossheig'][:])
-
-    if nav_lat is None:  # First file: read lat/lon
+    if nav_lat is None:  
         nav_lat = model.variables['nav_lat'][:]
         nav_lon = model.variables['nav_lon'][:]
-
+        first=1
     model.close()
-
-# Cat all files
-#ssh_ts_all = np.concatenate(ssh_ts_list, axis=0)
 
 # Read ssh xarray
 ds = xr.open_mfdataset(infile, combine='by_coords', parallel=True)
@@ -69,31 +64,19 @@ ssh_ts_all = ds['sossheig']
 ########################
 # Compute and write values in the netCDF file
 modes_outfile = nc.Dataset(outfile, 'a')
-#for i in range(0,8):
-#       var_amp = modes_outfile.variables['m'+str(i)+'_Amp']
-#       var_T = modes_outfile.variables['m'+str(i)+'_T']
 
-# Call the function for each point
-for lon_idx in range (285,len(nav_lon)): #(0,len(nav_lon)):
+# Call the function for each point in the Med
+for lon_idx in range (300,len(nav_lon)): #(0,len(nav_lon)):
     for lat_idx in range (0,len(nav_lat)): # (0,len(nav_lat)):
         ssh_ts_point = ssh_ts_all[:, lat_idx, lon_idx].values
-        amp_peak_periods_main, amp_peak_amplitudes_main = f_point_spt.amp_main_modes(lat_idx, lon_idx, ssh_ts_point, dt)
-        #amp_peak_periods_main,amp_peak_amplitudes_main=f_point_spt.amp_main_modes(lat_idx,lon_idx,ssh_ts_all[:, lat_idx, lon_idx],dt)
+        amp_peak_periods_main, amp_peak_amplitudes_main = f_point_ampspt.amp_main_modes(lat_idx, lon_idx, ssh_ts_point, dt)
 
-        for i in range(8):  # Ci sono 8 modi
+        for i in range(8):
             try:
-                print(f'Mode {i} T={amp_peak_periods_main[i]:.2f} h, Amp={amp_peak_amplitudes_main[i]:.4f} m')
+                #print(f'Mode {i} T={amp_peak_periods_main[i]:.2f} h, Amp={amp_peak_amplitudes_main[i]:.4f} m')
                 modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = amp_peak_amplitudes_main[i]
                 modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = amp_peak_periods_main[i]
             except:
                 modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = np.nan
                 modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = np.nan
-              #try:
-              #   print (f'Mode {i} T={amp_peak_periods_main[i]} h, Amp={amp_peak_amplitudes_main[i]} m')
-              #   var_amp[lat_idx,lon_idx] = amp_peak_amplitudes_main[i]
-              #   var_T[lat_idx,lon_idx] = amp_peak_periods_main[i]
-              #except:
-              #   var_amp[out_lat_idx,out_lon_idx] = np.nan
-              #   var_T[out_lat_idx,out_lon_idx] = np.nan
-
 modes_outfile.close()

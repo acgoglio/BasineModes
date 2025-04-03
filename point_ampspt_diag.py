@@ -18,15 +18,22 @@ mpl.use('Agg')
 # Inputs and outputs
 
 start_date = "20150103" 
-end_date = "20150301" 
+end_date = "20150201" 
 
-#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# BF
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# NO BF
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# BF f
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_3NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# P cost
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_5NT_P/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# P cost+f
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_4NT_P/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 
 # Exp tag
 Med_reg=str(sys.argv[3])
-exp='NBF_'+Med_reg
+exp='BF_'+Med_reg
 
 # Lat and lon indexes
 lat_idx = int(sys.argv[2]) 
@@ -40,7 +47,7 @@ n_modes = 8
 
 # Flag and threshold [h] for filtering the spectrum the threshold is also used as plot minimum 
 flag_filter='true'
-th_filter=40
+th_filter=39
 
 # Flag for Gaussian smoothing of the spectrum: true, false or plot (to use the original spt but add the plot of the smoothed spt)
 flag_smooth='false'
@@ -154,14 +161,14 @@ final_periods = []
 final_amplitudes = []
 
 for i in range(len(period_sorted)):
-    if period_sorted[i] > 30:
+    if period_sorted[i] > 28: #30:
         tolerance = 10  
-    elif 25 <= period_sorted[i] <= 30:
-        tolerance = 4  
+    elif 25 <= period_sorted[i] <= 28: #30:
+        tolerance = 5 #10  
     elif 12 <= period_sorted[i] < 25:
         tolerance = 2  
     elif 6 <= period_sorted[i] < 12:
-        tolerance = 1  
+        tolerance = 0.5   
     else:
         tolerance = 0.1  
 
@@ -300,7 +307,7 @@ elif flag_smooth == 'plot':
 plt.xlabel('Period (h)')
 plt.ylabel('Mode Amplitude (m)')
 plt.xlim(th_filter-1,dt*1/3600)
-plt.ylim(0.0000001,0.02)
+plt.ylim(0.0000001,0.025)
 
 plt.text(24,plt.ylim()[0],'24', ha='center', va='top')
 plt.text(12,plt.ylim()[0],'12', ha='center', va='top')

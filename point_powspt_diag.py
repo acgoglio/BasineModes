@@ -18,15 +18,21 @@ mpl.use('Agg')
 # Inputs and outputs
 
 start_date = "20150103" 
-end_date = "20150301" 
-
-#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+end_date = "20150201" 
+# BF
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# NO BF
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# BFf
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_3NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# P cost
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_5NT_P/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+# P cost+f
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_4NT_P/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 
 # Exp tag
 Med_reg=str(sys.argv[3])
-exp='NBF_'+Med_reg
+exp='BF_'+Med_reg
 
 # Lat and lon indexes
 lat_idx = int(sys.argv[2]) 
@@ -40,7 +46,7 @@ n_modes = 8
 
 # Flag and threshold [h] for filtering the spectrum the threshold is also used as plot minimum 
 flag_filter='true'
-th_filter=40
+th_filter=39
 
 # Flag for Gaussian smoothing of the spectrum: true, false or plot (to use the original spt but add the plot of the smoothed spt)
 flag_smooth='false'
@@ -147,14 +153,14 @@ final_periods = []
 final_amplitudes = []
 
 for i in range(len(period_sorted)):
-    if period_sorted[i] > 30:
+    if period_sorted[i] > 28: #30:
         tolerance = 10  
-    elif 25 <= period_sorted[i] <= 30:
-        tolerance = 4  
+    elif 25 <= period_sorted[i] <= 28: #30:
+        tolerance = 5 #10  
     elif 12 <= period_sorted[i] < 25:
         tolerance = 2  
     elif 6 <= period_sorted[i] < 12:
-        tolerance = 1  
+        tolerance = 0.5   
     else:
         tolerance = 0.1  
 
@@ -219,7 +225,7 @@ plt.title(f'Power Spectrum at lat='+str(lats)+' lon='+str(lons)+' '+Med_reg)
 mode_colors = plt.cm.rainbow(np.linspace(0, 1, n_modes)) 
 for i in range(0,n_modes): 
     try:
-       plt.axvline(amp_peak_period_sorted[i], color=mode_colors[i],linestyle='--',linewidth=4,label=f'Mode {i} (T={amp_peak_period_sorted[i]:.2f} h, E={amp_peak_amplitudes_sorted[i]:.3f} m2/Hz)')
+       plt.axvline(amp_peak_period_sorted[i], color=mode_colors[i],linestyle='--',linewidth=4,label=f'Mode {i} (T={amp_peak_period_sorted[i]:.2f} h, E={amp_peak_amplitudes_sorted[i]:.3f} m2*s2)')
        #plt.text(1/amp_peak_frequencies_sorted[i]/3600, plt.ylim()[0] - 0.1, f'{1/amp_peak_frequencies_sorted[i]/3600}', ha='center', va='top')
     except:
        print ('Nan')
@@ -230,7 +236,7 @@ if flag_smooth == 'true':
 elif flag_smooth == 'plot':
    plt.loglog(periods[periods>f_Nyq], amp_smooth_2plot[periods>f_Nyq], marker='o', linestyle='-',linewidth=4,color='tab:green', label='Smoothed Modes Energy')
 plt.xlabel('Period (h)')
-plt.ylabel('Power Spectrum (m2/Hz)')
+plt.ylabel('Power Spectrum (m2*s2)')
 plt.xlim(th_filter-1,dt*1/3600)
 plt.ylim(0.0000001,0.5)
 plt.text(24,plt.ylim()[0],'24', ha='center', va='top')
@@ -242,9 +248,9 @@ plt.legend(loc='upper right')
 # Add the table
 table_data = []
 for i in range(n_modes):
-    table_data.append([f'Mode {i}', f'{amp_peak_period_sorted[i]:.2f} h', f'{amp_peak_amplitudes_sorted[i]:.3f} m2/Hz'])
+    table_data.append([f'Mode {i}', f'{amp_peak_period_sorted[i]:.2f} h', f'{amp_peak_amplitudes_sorted[i]:.3f} m2*s2'])
 
-col_labels = ['Mode', 'Period (h)', 'Energy (m2/Hz)']
+col_labels = ['Mode', 'Period (h)', 'Energy (m2*s2)']
 
 table_ax = plt.table(cellText=table_data,
                      colLabels=col_labels,
@@ -278,7 +284,7 @@ plt.title(f'Power Spectrum at lat='+str(lats)+' lon='+str(lons)+' '+Med_reg)
 mode_colors = plt.cm.rainbow(np.linspace(0, 1, n_modes)) 
 for i in range(0,n_modes): 
     try:
-       plt.axvline(amp_peak_period_sorted[i], color=mode_colors[i],linestyle='--',linewidth=4,label=f'Mode {i} (T={amp_peak_period_sorted[i]:.2f} h, E={amp_peak_amplitudes_sorted[i]:.3f} m)')
+       plt.axvline(amp_peak_period_sorted[i], color=mode_colors[i],linestyle='--',linewidth=4,label=f'Mode {i} (T={amp_peak_period_sorted[i]:.2f} h, E={amp_peak_amplitudes_sorted[i]:.3f} m2*s2)')
        #plt.text(1/amp_peak_frequencies_sorted[i]/3600, plt.ylim()[0] - 0.1, f'{1/amp_peak_frequencies_sorted[i]/3600}', ha='center', va='top')
     except:
        print ('Nan')
@@ -289,7 +295,7 @@ if flag_smooth == 'true':
 elif flag_smooth == 'plot':
    plt.loglog(periods[periods>f_Nyq], amp_smooth_2plot[periods>f_Nyq], marker='o', linestyle='-',linewidth=4,color='tab:green', label='Smoothed Modes Energy')
 plt.xlabel('Period (h)')
-plt.ylabel('Power Spectrum (m2/Hz)')
+plt.ylabel('Power Spectrum (m2*s2)')
 plt.xlim(th_filter-1,dt*1/3600)
 plt.ylim(0.0000001,0.04)
 
@@ -304,9 +310,9 @@ plt.legend(loc='upper right')
 # Add the table
 table_data = []
 for i in range(n_modes):
-    table_data.append([f'Mode {i}', f'{amp_peak_period_sorted[i]:.2f} h', f'{amp_peak_amplitudes_sorted[i]:.3f} m2/Hz'])
+    table_data.append([f'Mode {i}', f'{amp_peak_period_sorted[i]:.2f} h', f'{amp_peak_amplitudes_sorted[i]:.3f} m2*s2'])
 
-col_labels = ['Mode', 'Period (h)', 'Energy (m2/Hz)']
+col_labels = ['Mode', 'Period (h)', 'Energy (m2*s2)']
 
 table_ax = plt.table(cellText=table_data,
                      colLabels=col_labels,
