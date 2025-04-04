@@ -46,7 +46,7 @@ n_modes = 8
 
 # Flag and threshold [h] for filtering the spectrum the threshold is also used as plot minimum 
 flag_filter='true'
-th_filter=39
+th_filter=38
 
 # Flag for Gaussian smoothing of the spectrum: true, false or plot (to use the original spt but add the plot of the smoothed spt)
 flag_smooth='false'

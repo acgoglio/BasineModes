@@ -13,7 +13,7 @@ from scipy.signal import detrend
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks
 import shutil
-import f_point_spt
+import f_point_powspt
 mpl.use('Agg')
 
 ########
@@ -69,7 +69,7 @@ modes_outfile = nc.Dataset(outfile, 'a')
 for lon_idx in range (300,len(nav_lon)): #(0,len(nav_lon)):
     for lat_idx in range (0,len(nav_lat)): # (0,len(nav_lat)):
         ssh_ts_point = ssh_ts_all[:, lat_idx, lon_idx].values
-        pow_peak_periods_main, pow_peak_amplitudes_main = f_point_powspt.amp_main_modes(lat_idx, lon_idx, ssh_ts_point, dt)
+        pow_peak_periods_main, pow_peak_amplitudes_main = f_point_powspt.pow_main_modes(lat_idx, lon_idx, ssh_ts_point, dt)
 
         for i in range(8):
             try:

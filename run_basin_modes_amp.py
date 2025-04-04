@@ -13,7 +13,7 @@ from scipy.signal import detrend
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks
 import shutil
-import f_point_spt
+import f_point_ampspt
 mpl.use('Agg')
 
 ########
