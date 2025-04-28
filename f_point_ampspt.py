@@ -64,7 +64,7 @@ def amp_main_modes(lat_idx,lon_idx,ssh_ts_all,dt):
    amplitudes = (2 / spt_len) * np.abs(fft_positive)
 
    if flag_filter=='true':
-      print ('Filter = true')
+      #print ('Filter = true')
       # Apply high-pass filter: Set frequencies below the threshold to zero
       high_pass_threshold = 1 / (th_filter * 3600)  # Corresponding to 48 hours in Hz
       fft_positive[freq_positive < high_pass_threshold] = 0  # Filter out frequencies below the threshold
@@ -90,41 +90,43 @@ def amp_main_modes(lat_idx,lon_idx,ssh_ts_all,dt):
    period_sorted = 1/amp_peak_frequencies_sorted/3600  # periodi dei modi
    amplitude_sorted = amp_peak_amplitudes_sorted  # ampiezze dei modi
 
-   final_periods = []
-   final_amplitudes = []
+   final_periods = period_sorted
+   final_amplitudes = amplitude_sorted
 
-   for i in range(len(period_sorted)):
-       if period_sorted[i] > 28: #30:
-           tolerance = 10  
-       elif 25 <= period_sorted[i] <= 28: #30:
-           tolerance = 5 #10  
-       elif 12 <= period_sorted[i] < 25:
-           tolerance = 2  
-       elif 6 <= period_sorted[i] < 12:
-           tolerance = 0.5   
-       else:
-           tolerance = 0.1  
- 
-   keep_mode = True  
-   for j in range(len(final_periods)):
-        if abs(period_sorted[i] - final_periods[j]) <= tolerance:
-            if amplitude_sorted[i] <= final_amplitudes[j]:
-                keep_mode = False  
-                break
-            else:
-                final_periods[j] = period_sorted[i]
-                final_amplitudes[j] = amplitude_sorted[i]
-                keep_mode = False  
-                break
-    
-   if keep_mode:
-        final_periods.append(period_sorted[i])
-        final_amplitudes.append(amplitude_sorted[i])
+#   final_periods = []
+#   final_amplitudes = []
+#
+#   for i in range(len(period_sorted)):
+#       if period_sorted[i] > 28: #30:
+#           tolerance = 10  
+#       elif 25 <= period_sorted[i] <= 28: #30:
+#           tolerance = 5 #10  
+#       elif 12 <= period_sorted[i] < 25:
+#           tolerance = 2  
+#       elif 6 <= period_sorted[i] < 12:
+#           tolerance = 0.5   
+#       else:
+#           tolerance = 0.1  
+# 
+#   keep_mode = True  
+#   for j in range(len(final_periods)):
+#        if abs(period_sorted[i] - final_periods[j]) <= tolerance:
+#            if amplitude_sorted[i] <= final_amplitudes[j]:
+#                keep_mode = False  
+#                break
+#            else:
+#                final_periods[j] = period_sorted[i]
+#                final_amplitudes[j] = amplitude_sorted[i]
+#                keep_mode = False  
+#                break
+#    
+#   if keep_mode:
+#        final_periods.append(period_sorted[i])
+#        final_amplitudes.append(amplitude_sorted[i])
 
    # Final arrays
    amp_peak_amplitudes_sorted=np.array(final_amplitudes) 
    amp_peak_period_sorted=np.array(final_periods)
-
 
    #############
    # Return the values

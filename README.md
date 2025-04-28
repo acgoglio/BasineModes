@@ -26,3 +26,60 @@ run_basin_modes.py
 #
 # while read LINE; do if [[ ${LINE:0:1} != '#' ]]; then echo $LINE ; MPython point_powspt_diag.py $LINE ; MPython point_ampspt_diag.py $LINE ; fi ; done < idx_10pt.coo
 
+
+## To run on the whole domain
+LPython run_basin_modes_amp_idx.py 300  421  0 128 1
+LPython run_basin_modes_amp_idx.py 421  541  0 128 2
+LPython run_basin_modes_amp_idx.py 541  661  0 128 3
+LPython run_basin_modes_amp_idx.py 661  781  0 128 4
+LPython run_basin_modes_amp_idx.py 781  901  0 128 5
+LPython run_basin_modes_amp_idx.py 901  1021 0 128 6
+LPython run_basin_modes_amp_idx.py 1021 1141 0 128 7
+LPython run_basin_modes_amp_idx.py 1141 1261 0 128 8
+LPython run_basin_modes_amp_idx.py 1261 1306 0 128 9
+LPython run_basin_modes_amp_idx.py 300  421  128 255 10
+LPython run_basin_modes_amp_idx.py 421  541  128 255 11
+LPython run_basin_modes_amp_idx.py 541  661  128 255 12
+LPython run_basin_modes_amp_idx.py 661  781  128 255 13
+LPython run_basin_modes_amp_idx.py 781  901  128 255 14
+LPython run_basin_modes_amp_idx.py 901  1021 128 255 15
+LPython run_basin_modes_amp_idx.py 1021 1141 128 255 15
+LPython run_basin_modes_amp_idx.py 1141 1261 128 255 17
+LPython run_basin_modes_amp_idx.py 1261 1306 128 255 18
+LPython run_basin_modes_amp_idx.py 300  421  255 379 19
+LPython run_basin_modes_amp_idx.py 421  541  255 379 20
+LPython run_basin_modes_amp_idx.py 541  661  255 379 21
+LPython run_basin_modes_amp_idx.py 661  781  255 379 22
+LPython run_basin_modes_amp_idx.py 781  901  255 379 23
+LPython run_basin_modes_amp_idx.py 901  1021 255 379 24
+LPython run_basin_modes_amp_idx.py 1021 1141 255 379 25
+LPython run_basin_modes_amp_idx.py 1141 1261 255 379 26
+LPython run_basin_modes_amp_idx.py 1261 1306 255 379 27
+
+LPython run_basin_modes_pow_idx.py 300  421  0 128 1
+LPython run_basin_modes_pow_idx.py 421  541  0 128 2
+LPython run_basin_modes_pow_idx.py 541  661  0 128 3
+LPython run_basin_modes_pow_idx.py 661  781  0 128 4
+LPython run_basin_modes_pow_idx.py 781  901  0 128 5
+LPython run_basin_modes_pow_idx.py 901  1021 0 128 6
+LPython run_basin_modes_pow_idx.py 1021 1141 0 128 7
+LPython run_basin_modes_pow_idx.py 1141 1261 0 128 8
+LPython run_basin_modes_pow_idx.py 1261 1306 0 128 9
+LPython run_basin_modes_pow_idx.py 300  421  128 255 10
+LPython run_basin_modes_pow_idx.py 421  541  128 255 11
+LPython run_basin_modes_pow_idx.py 541  661  128 255 12
+LPython run_basin_modes_pow_idx.py 661  781  128 255 13
+LPython run_basin_modes_pow_idx.py 781  901  128 255 14
+LPython run_basin_modes_pow_idx.py 901  1021 128 255 15
+LPython run_basin_modes_pow_idx.py 1021 1141 128 255 15
+LPython run_basin_modes_pow_idx.py 1141 1261 128 255 17
+LPython run_basin_modes_pow_idx.py 1261 1306 128 255 18
+LPython run_basin_modes_pow_idx.py 300  421  255 379 19
+LPython run_basin_modes_pow_idx.py 421  541  255 379 20
+LPython run_basin_modes_pow_idx.py 541  661  255 379 21
+LPython run_basin_modes_pow_idx.py 661  781  255 379 22
+LPython run_basin_modes_pow_idx.py 781  901  255 379 23
+LPython run_basin_modes_pow_idx.py 901  1021 255 379 24
+LPython run_basin_modes_pow_idx.py 1021 1141 255 379 25
+LPython run_basin_modes_pow_idx.py 1141 1261 255 379 26
+LPython run_basin_modes_pow_idx.py 1261 1306 255 379 27

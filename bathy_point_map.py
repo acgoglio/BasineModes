@@ -22,7 +22,7 @@ exp_name  = "Bathymetry"
 NEMO_GRID = "/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc"
 var       = "Bathymetry"
 infile    = "/work/cmcc/ag15419/VAA_paper/DATA0/bathy_meter.nc"
-outfile   = "/users_home/cmcc/ag15419/BasinModesTool/bathy_10p.png"
+outfile   = "/users_home/cmcc/ag15419/BasinModesTool/bathy_13points.png"
 minV      = "-0.01" #"-0.1"
 maxV      = "2500" #"0.1"
 thV       = "nan"
@@ -130,6 +130,6 @@ for lon, lat, name in zip(lon_points, lat_points, names):
     xp, yp = m(lon, lat)
     plt.scatter(xp, yp, marker='o', color='red', s=200, alpha=1, edgecolors='black', zorder=10) 
 
-plt.title( var_name+' '+exp_name+' '+inidate[0:8]+' HH:'+hour, fontsize=20, fontweight='bold')
+#plt.title( var_name+' '+exp_name+' '+inidate[0:8]+' HH:'+hour, fontsize=20, fontweight='bold')
 plt.savefig(outfile)
 

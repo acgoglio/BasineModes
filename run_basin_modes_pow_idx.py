@@ -13,15 +13,23 @@ from scipy.signal import detrend
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import find_peaks
 import shutil
-import f_point_ampspt
+import f_point_powspt
 mpl.use('Agg')
 
 ########
 
-# Workdir, otufile template and otfil 
+# Lon/lat box indexes
+min_lon = int(sys.argv[1])
+max_lon = int(sys.argv[2])
+min_lat = int(sys.argv[3])
+max_lat = int(sys.argv[4])
+
+box_idx = str(sys.argv[5])
+
+# Workdir, otufile template and otfile name
 work_dir='/work/cmcc/ag15419/basin_modes/'
-infile_amppha=work_dir+'basin_modes_amp_adr.nc' #'/work/cmcc/ag15419/basin_modes/basin_modes_ini.nc'
-outfile=work_dir+'basin_modes_amp_3.nc'
+infile_amppha='/work/cmcc/ag15419/basin_modes/basin_modes_ini.nc'
+outfile=work_dir+'basin_modes_pow_'+box_idx+'.nc'
 
 # Infiles
 start_date = "20150103"
@@ -71,20 +79,20 @@ mesh = mesh_nemo.variables['tmask'][0,0,:,:]
 modes_outfile = nc.Dataset(outfile, 'a')
 
 # Call the function for each point in the Med
-for lon_idx in range (700,800): #(300,len(nav_lon)):
-    for lat_idx in range (0,250): # (0,len(nav_lat)):
+for lon_idx in range (min_lon,max_lon): #(300,len(nav_lon)):
+    for lat_idx in range (min_lat,max_lat): # (0,len(nav_lat)):
 
         # If is sea-point:
         if mesh[lat_idx, lon_idx]==1:
 
-           # Extract the time-series and Call the function 
+           # Extract the time-series and Call the function
            ssh_ts_point = ssh_ts_all[:, lat_idx, lon_idx].values
-           amp_peak_periods_main, amp_peak_amplitudes_main = f_point_ampspt.amp_main_modes(lat_idx, lon_idx, ssh_ts_point, dt)
+           pow_peak_periods_main, pow_peak_amplitudes_main = f_point_powspt.pow_main_modes(lat_idx, lon_idx, ssh_ts_point, dt)
 
            for i in range(8):
                try:
-                  modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = amp_peak_amplitudes_main[i]
-                  modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = amp_peak_periods_main[i]
+                  modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = pow_peak_amplitudes_main[i]
+                  modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = pow_peak_periods_main[i]
                except:
                   modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = np.nan
                   modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = np.nan
@@ -93,5 +101,5 @@ for lon_idx in range (700,800): #(300,len(nav_lon)):
         else:
            for i in range(8):
                   modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = np.nan
-                  modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = np.nan 
+                  modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = np.nan
 modes_outfile.close()

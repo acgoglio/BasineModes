@@ -31,7 +31,7 @@ all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2
 # Model time step in seconds
 dt = 3600
 
-###################A
+###################
 # Build the outfile:
 shutil.copy(infile_amppha,outfile)
 
@@ -61,6 +61,10 @@ for nc2open in infile:
 ds = xr.open_mfdataset(infile, combine='by_coords', parallel=True)
 ssh_ts_all = ds['sossheig']
 
+# Read land/sea mask 
+mesh_nemo = nc.Dataset(mesh_mask, 'r')
+mesh = mesh_nemo.variables['tmask'][0,0,:,:]
+
 ########################
 # Compute and write values in the netCDF file
 modes_outfile = nc.Dataset(outfile, 'a')
@@ -68,15 +72,25 @@ modes_outfile = nc.Dataset(outfile, 'a')
 # Call the function for each point in the Med
 for lon_idx in range (300,len(nav_lon)): #(0,len(nav_lon)):
     for lat_idx in range (0,len(nav_lat)): # (0,len(nav_lat)):
-        ssh_ts_point = ssh_ts_all[:, lat_idx, lon_idx].values
-        pow_peak_periods_main, pow_peak_amplitudes_main = f_point_powspt.pow_main_modes(lat_idx, lon_idx, ssh_ts_point, dt)
 
-        for i in range(8):
-            try:
-                #print(f'Mode {i} T={amp_peak_periods_main[i]:.2f} h, Amp={amp_peak_amplitudes_main[i]:.4f} m')
-                modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = pow_peak_amplitudes_main[i]
-                modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = pow_peak_periods_main[i]
-            except:
-                modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = np.nan
-                modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = np.nan
+        # If is sea-point:
+        if mesh[lat_idx, lon_idx]==1:
+
+           # Extract the time-series and Call the function
+           ssh_ts_point = ssh_ts_all[:, lat_idx, lon_idx].values
+           pow_peak_periods_main, pow_peak_amplitudes_main = f_point_powspt.pow_main_modes(lat_idx, lon_idx, ssh_ts_point, dt)
+
+           for i in range(8):
+               try:
+                  modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = pow_peak_amplitudes_main[i]
+                  modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = pow_peak_periods_main[i]
+               except:
+                  modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = np.nan
+                  modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = np.nan
+
+        # If land point
+        else:
+           for i in range(8):
+                  modes_outfile.variables[f'm{i}_Amp'][lat_idx, lon_idx] = np.nan
+                  modes_outfile.variables[f'm{i}_T'][lat_idx, lon_idx] = np.nan
 modes_outfile.close()

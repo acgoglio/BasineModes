@@ -15,13 +15,15 @@ from scipy.signal import find_peaks
 mpl.use('Agg')
 
 ########
-# Inputs and outputs
+work_dir='/work/cmcc/ag15419/basin_modes/plots/'
 
+# Inputs and outputs
 start_date = "20150103" 
 end_date = "20150201" 
 
 # BF
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1ts_20*_2D_grid_T.nc"))
 # NO BF
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 # BF f
@@ -33,14 +35,14 @@ all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2
 
 # Exp tag
 Med_reg=str(sys.argv[3])
-exp='BF_'+Med_reg
+exp='BF_1ts_'+Med_reg
 
 # Lat and lon indexes
 lat_idx = int(sys.argv[2]) 
 lon_idx = int(sys.argv[1]) 
 
 # Model time step in seconds
-dt = 3600 #90 60*60
+dt = 90 #90 60*60
 
 # Number of modes to analyze
 n_modes = 8
@@ -220,7 +222,7 @@ plt.xlabel('Time (h)')
 plt.ylabel('SSH (m)')
 plt.grid()
 plt.legend(loc='upper right')
-plt.savefig(f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
+plt.savefig(work_dir+f'ssh_{lat_idx}_{lon_idx}_{exp}.png')
 
 # PLOT AMPLITUDE SPECTRA with and without log scale
 
@@ -281,7 +283,7 @@ for key, cell in table_ax.get_celld().items():
     #cell.set_fontsize(16)
 
 plt.tight_layout()
-plt.savefig(f'amp_{lat_idx}_{lon_idx}_{exp}.png')
+plt.savefig(work_dir+f'amp_{lat_idx}_{lon_idx}_{exp}.png')
 
 # PLOT NO LOG
 plt.figure(figsize=(27, 14))
@@ -343,5 +345,5 @@ for key, cell in table_ax.get_celld().items():
     #cell.set_fontsize(16)
 
 plt.tight_layout()
-plt.savefig(f'amp_nolog_{lat_idx}_{lon_idx}_{exp}.png')
+plt.savefig(work_dir+f'amp_nolog_{lat_idx}_{lon_idx}_{exp}.png')
 

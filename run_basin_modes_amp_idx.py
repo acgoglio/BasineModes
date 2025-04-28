@@ -18,10 +18,18 @@ mpl.use('Agg')
 
 ########
 
-# Workdir, otufile template and otfil 
+# Lon/lat box indexes
+min_lon = int(sys.argv[1])
+max_lon = int(sys.argv[2])
+min_lat = int(sys.argv[3])
+max_lat = int(sys.argv[4])
+
+box_idx = str(sys.argv[5])
+
+# Workdir, otufile template and otfile name
 work_dir='/work/cmcc/ag15419/basin_modes/'
-infile_amppha=work_dir+'basin_modes_amp_adr.nc' #'/work/cmcc/ag15419/basin_modes/basin_modes_ini.nc'
-outfile=work_dir+'basin_modes_amp_3.nc'
+infile_amppha='/work/cmcc/ag15419/basin_modes/basin_modes_ini.nc'
+outfile=work_dir+'basin_modes_amp_'+box_idx+'.nc'
 
 # Infiles
 start_date = "20150103"
@@ -71,8 +79,8 @@ mesh = mesh_nemo.variables['tmask'][0,0,:,:]
 modes_outfile = nc.Dataset(outfile, 'a')
 
 # Call the function for each point in the Med
-for lon_idx in range (700,800): #(300,len(nav_lon)):
-    for lat_idx in range (0,250): # (0,len(nav_lat)):
+for lon_idx in range (min_lon,max_lon): #(300,len(nav_lon)):
+    for lat_idx in range (min_lat,max_lat): # (0,len(nav_lat)):
 
         # If is sea-point:
         if mesh[lat_idx, lon_idx]==1:
