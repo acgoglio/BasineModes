@@ -43,7 +43,7 @@ LPython run_basin_modes_amp_idx.py 541  661  128 255 12
 LPython run_basin_modes_amp_idx.py 661  781  128 255 13
 LPython run_basin_modes_amp_idx.py 781  901  128 255 14
 LPython run_basin_modes_amp_idx.py 901  1021 128 255 15
-LPython run_basin_modes_amp_idx.py 1021 1141 128 255 15
+LPython run_basin_modes_amp_idx.py 1021 1141 128 255 16
 LPython run_basin_modes_amp_idx.py 1141 1261 128 255 17
 LPython run_basin_modes_amp_idx.py 1261 1306 128 255 18
 LPython run_basin_modes_amp_idx.py 300  421  255 379 19
@@ -71,7 +71,7 @@ LPython run_basin_modes_pow_idx.py 541  661  128 255 12
 LPython run_basin_modes_pow_idx.py 661  781  128 255 13
 LPython run_basin_modes_pow_idx.py 781  901  128 255 14
 LPython run_basin_modes_pow_idx.py 901  1021 128 255 15
-LPython run_basin_modes_pow_idx.py 1021 1141 128 255 15
+LPython run_basin_modes_pow_idx.py 1021 1141 128 255 16
 LPython run_basin_modes_pow_idx.py 1141 1261 128 255 17
 LPython run_basin_modes_pow_idx.py 1261 1306 128 255 18
 LPython run_basin_modes_pow_idx.py 300  421  255 379 19
