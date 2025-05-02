@@ -24,10 +24,12 @@ run_basin_modes.py
 
 # SPython point_spt_diag_MSLP.py 200 80 prova
 #
+# LAST puntual VERSION
 # while read LINE; do if [[ ${LINE:0:1} != '#' ]]; then echo $LINE ; MPython point_powspt_diag.py $LINE ; MPython point_ampspt_diag.py $LINE ; fi ; done < idx_10pt.coo
 
-
+# LAST VERSION for the area:
 ## To run on the whole domain
+# 1) Work on single box
 LPython run_basin_modes_amp_idx.py 300  421  0 128 1
 LPython run_basin_modes_amp_idx.py 421  541  0 128 2
 LPython run_basin_modes_amp_idx.py 541  661  0 128 3
@@ -83,3 +85,9 @@ LPython run_basin_modes_pow_idx.py 901  1021 255 379 24
 LPython run_basin_modes_pow_idx.py 1021 1141 255 379 25
 LPython run_basin_modes_pow_idx.py 1141 1261 255 379 26
 LPython run_basin_modes_pow_idx.py 1261 1306 255 379 27
+
+# 2) Merge the boxes
+SPython merge_amp_idx.py
+SPython merge_pow_idx.py
+
+# 3) Run the diagnostic

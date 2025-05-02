@@ -55,18 +55,21 @@ for row in range(3):        # 0 to 2 (south to north)
                 print(f"Skipping variable {var}: unexpected shape {var_data.shape}")
 
 
-# Coordinates for box 19
-x0, x1 = 300, 420
-y0, y1 = 254, 380
 
-# Mask box 19 with NaNs (skip Biscay Bay area)
-for var in merged_ds.data_vars:
-    data = merged_ds[var]
+# Set all values in box 19 (Biscay Bay) to NaN
+# Box 19 is the first column (col=0) of the top row (row=2)
+x0, x1 = x_edges[0], x_edges[1]   # x from 300 to 421
+y0, y1 = y_edges[2], y_edges[3]   # y from 254 to 380
+
+for var in ds_full.data_vars:
+    if var in ["nav_lon", "nav_lat"]:
+        continue
+    data = ds_full[var]
     if {"y", "x"}.issubset(data.dims):
         if "time_counter" in data.dims:
-            merged_ds[var].values[:, y0:y1, x0:x1] = np.nan
+            ds_full[var].values[:, y0:y1, x0:x1] = np.nan
         else:
-            merged_ds[var].values[y0:y1, x0:x1] = np.nan
+            ds_full[var].values[y0:y1, x0:x1] = np.nan
 
 # Fix metadata: rename standard_name and units for phase variables
 for var in ds_full.data_vars:
