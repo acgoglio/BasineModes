@@ -10,11 +10,11 @@ mpl.use("Agg")  # For non-interactive backend
 
 # --- Paths ---
 indir = "/work/cmcc/ag15419/basin_modes/"
-infile = os.path.join(indir, "basin_modes_amp_med.nc")
-csvfile = os.path.join(indir, "periods_grouped30min_amp.csv")
-outfile = os.path.join(indir, "mode_groups_amp.nc")
+infile = os.path.join(indir, "basin_modes_pow_med.nc")
+csvfile = os.path.join(indir, "periods_grouped30min_pow.csv")
+outfile = os.path.join(indir, "mode_groups_pow.nc")
 mesh_mask_file = "/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc"
-output_plot_dir = os.path.join(indir, "mode_plots_amp")
+output_plot_dir = os.path.join(indir, "mode_plots_pow")
 os.makedirs(output_plot_dir, exist_ok=True)
 
 # --- Load datasets ---
@@ -80,7 +80,7 @@ for gp in group_centers:
 
     # Add land-sea contour
     plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000,0.05], colors="gray")
-    plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
+    plt.contour(nav_lon, nav_lat, tmask, levels=[0.5], colors="black", linewidths=0.8)
 
     plt.title(f"Modes with Period: {gp:.1f} h +- 0.5 h")
     plt.xlabel("Longitude")
@@ -88,11 +88,10 @@ for gp in group_centers:
     plt.xlim(-6, 36.3)
     plt.ylim(30, 46)
 
-    plot_file = os.path.join(output_plot_dir, f"mode_amp_{gp:.1f}h.png")
+    plot_file = os.path.join(output_plot_dir, f"mode_pow_{gp:.1f}h.png")
     plt.savefig(plot_file, dpi=300, bbox_inches="tight")
     plt.close()
     print(f"Saved plot as {plot_file}")
-
 
     #################################
     # Plot the flag per resonance period
@@ -118,7 +117,9 @@ for gp in group_centers:
     plt.xlim(-6, 36.3)
     plt.ylim(30, 46)
 
-    presence_plot_file = os.path.join(output_plot_dir, f"mode_flag_amp_{gp:.1f}h.png")
+    presence_plot_file = os.path.join(output_plot_dir, f"mode_flag_pow_{gp:.1f}h.png")
     plt.savefig(presence_plot_file, dpi=300, bbox_inches="tight")
     plt.close()
     print(f"Saved presence map as {presence_plot_file}")
+
+
