@@ -4,23 +4,38 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from matplotlib.colors import LinearSegmentedColormap
 import netCDF4 as ncdf
+from matplotlib.colors import LogNorm
 
 mpl.use("Agg")  # For non-interactive backend
 
 # --- Paths ---
 indir = "/work/cmcc/ag15419/basin_modes/"
 infile = os.path.join(indir, "basin_modes_amp_med.nc")
-csvfile = os.path.join(indir, "periods_grouped30min_amp.csv")
+csvfile = os.path.join(indir, "periods_all_amp.csv")
 outfile = os.path.join(indir, "mode_groups_amp.nc")
 mesh_mask_file = "/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc"
+bathy_file = "/work/cmcc/ag15419/VAA_paper/DATA0/bathy_meter.nc"
 output_plot_dir = os.path.join(indir, "mode_plots_amp")
 os.makedirs(output_plot_dir, exist_ok=True)
+
+##########################################
+# Truncate the colormap to exclude the lightest part (e.g. bottom 20%)
+def truncate_colormap(cmap, minval=0.2, maxval=1.0, n=256):
+    new_cmap = LinearSegmentedColormap.from_list(
+        f"trunc({cmap.name},{minval:.2f},{maxval:.2f})",
+        cmap(np.linspace(minval, maxval, n))
+    )
+    return new_cmap
 
 # --- Load datasets ---
 ds = xr.open_dataset(infile)
 grouped_df = pd.read_csv(csvfile)
-group_centers = grouped_df["Grouped_Period"].values
+try:
+   group_centers = grouped_df["Grouped_Period"].values
+except:
+   group_centers = grouped_df["Period"].values
 
 # --- Load grid and mask ---
 nc_nemogrid = ncdf.Dataset(mesh_mask_file)
@@ -28,6 +43,11 @@ nav_lat = nc_nemogrid.variables["nav_lat"][:]
 nav_lon = nc_nemogrid.variables["nav_lon"][:]
 tmask = nc_nemogrid.variables["tmask"][0, 0, :, :]  # shape (y, x)
 field_shape = nav_lat.shape
+
+# Load bathymetry (assumed to be 2D and in meters)
+ds_bathy = xr.open_dataset(bathy_file, decode_times=False)
+#bathy = ds_bathy["Bathymetry"].values  # Replace "Bathymetry" with correct var name if needed
+bathy = ds_bathy["Bathymetry"][0, :, :]
 
 # --- Initialize output fields ---
 fields = {f"mode_{gp:.2f}h": np.full(field_shape, np.nan) for gp in group_centers}
@@ -74,7 +94,7 @@ output_ds.to_netcdf(outfile)
 print(f"Saved grouped mode and amplitude maps to: {outfile}")
 
 # --- Plot each grouped mode field ---
-for gp in group_centers:
+for idx_gp,gp in enumerate(group_centers):
     mode_field = fields[f"mode_{gp:.2f}h"]
     amp_field = amp_fields[f"amp_{gp:.2f}h"]
 
@@ -87,49 +107,70 @@ for gp in group_centers:
     plt.colorbar(label="Mode Number")
     plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000, 0.05], colors="gray")
     plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
-    plt.title(f"Modes with Period: {gp:.1f} h ± 0.5 h")
+    #plt.title(f"Modes with Period: {gp:.1f} h ± 0.5 h")
+    plt.title(f"Modes with Period: {gp:.2f} h")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
     plt.ylim(30, 46)
-    plt.savefig(os.path.join(output_plot_dir, f"mode_amp_{gp:.1f}h.png"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_plot_dir, f"mode_amp_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
     plt.close()
 
     # Plot 2: presence mask
     presence_mask = (~np.isnan(mode_field)).astype(int)
     plt.figure(figsize=(10, 4))
-    cmap_presence = mpl.colors.ListedColormap(["white", "tab:red"])
+    cmap_presence = mpl.colors.ListedColormap(["white", "tab:blue"])
     bounds = [0, 0.5, 1.5]
     norm = mpl.colors.BoundaryNorm(bounds, cmap_presence.N)
     plt.contourf(nav_lon, nav_lat, presence_mask, levels=bounds, cmap=cmap_presence, norm=norm)
     plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000, 0.05], colors="gray")
     plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
-    plt.title(f"Presence Map for Period: {gp:.1f} h ± 0.5 h")
+    #plt.title(f"Presence Map for Period: {gp:.1f} h ± 0.5 h")
+    plt.title(f"Presence Map for Period: {gp:.2f} h")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
     plt.ylim(30, 46)
-    plt.savefig(os.path.join(output_plot_dir, f"mode_flag_amp_{gp:.1f}h.png"), dpi=300, bbox_inches="tight")
+    # Add legend instead of colorbar
+    #legend_elements = [
+    #   mpatches.Patch(facecolor="white", edgecolor="black", label="Not present"),
+    #   mpatches.Patch(facecolor="tab:blue", edgecolor="black", label="Present")
+    #]
+    #ax.legend(handles=legend_elements, loc="lower left", frameon=True, fontsize=9)
+
+    plt.savefig(os.path.join(output_plot_dir, f"mode_flag_amp_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
     plt.close()
 
     # Plot 3: amplitude in % of maximum
     plt.figure(figsize=(10, 4))
     amp_percent = amp_field / np.nanmax(amp_field) * 100
     masked_amp_pct = np.ma.masked_invalid(amp_percent)
-    cmap_amp_pct = mpl.cm.get_cmap("Blues")
+    cmap_amp_pct = mpl.cm.get_cmap("gist_stern_r") #("Blues")
+    cmap_amp_pct = truncate_colormap(cmap_amp_pct, 0.3, 0.95)
+
     cmap_amp_pct.set_bad("white")
-    im = plt.contourf(nav_lon, nav_lat, masked_amp_pct, levels=np.linspace(0, 101, 21), cmap=cmap_amp_pct)
+
+    im = plt.contourf(nav_lon, nav_lat, masked_amp_pct, levels=np.linspace(0, 100, 41), cmap=cmap_amp_pct)
     plt.colorbar(im, label="Amplitude (% of max)")
 
     # Contour at 0%
-    plt.contour(nav_lon, nav_lat, amp_percent, levels=[1], colors="magenta", linewidths=1.2)
-
+    #if np.any(np.isclose(masked_amp_pct, 0, atol=1e-2)):
+    plt.contour(nav_lon, nav_lat, masked_amp_pct, levels=[0.005], colors="magenta", linewidths=1.0)
+    
     plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000, 0.05], colors="gray")
     plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
-    plt.title(f"Amplitude for Period: {gp:.1f} h ± 0.5 h")
+
+    # Add bathymetry contour lines
+    contour_levels = [100, 200, 300]
+    plt.contour(nav_lon, nav_lat, bathy, levels=contour_levels, colors="black", linewidths=0.5, linestyles="dashed")
+    contour_levels = [400, 500]
+    plt.contour(nav_lon, nav_lat, bathy, levels=contour_levels, colors="black", linewidths=0.5, linestyles="dotted")
+
+    #plt.title(f"Amplitude for Mode with Period: {gp:.1f} h ± 0.5 h")
+    plt.title(f"Amplitude for Mode with Period: {gp:.2f} h")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
     plt.ylim(30, 46)
-    plt.savefig(os.path.join(output_plot_dir, f"mode_ampval_{gp:.1f}h.png"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_plot_dir, f"mode_ampval_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
     plt.close()

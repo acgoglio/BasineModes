@@ -91,3 +91,57 @@ SPython merge_amp_idx.py
 SPython merge_pow_idx.py
 
 # 3) Run the diagnostic
+SPython mode_period_tab_amp.py      # Needed to extract the table of main modes to be analyzed
+SPython mode_period_plot_ampval.py  # Amplitude values are analyzed 
+SPython mode_period_plot_amp.py     # Map of the modes area 
+
+SPython mode_period_tab_pow.py
+SPython mode_period_plot_powval.py
+SPython mode_period_plot_pow.p
+
+
+# NBF case 
+LPython run_basin_modes_amp_idx.py 781  901  0 64 5a
+LPython run_basin_modes_amp_idx.py 781  901  64 128 5b
+LPython run_basin_modes_amp_idx.py 901  1021 0 64 6a
+LPython run_basin_modes_amp_idx.py 901  1021 64 128 6b
+LPython run_basin_modes_amp_idx.py 1021 1141 0 64 7a
+LPython run_basin_modes_amp_idx.py 1021 1141 64 128 7b
+LPython run_basin_modes_amp_idx.py 1141 1261 0 64 8a
+LPython run_basin_modes_amp_idx.py 1141 1261 64 128 8b
+LPython run_basin_modes_amp_idx.py 421  541  128 191 11a
+LPython run_basin_modes_amp_idx.py 421  541  191 255 11b
+LPython run_basin_modes_amp_idx.py 541  661  128 191 12a
+LPython run_basin_modes_amp_idx.py 541  661  191 255 12b
+LPython run_basin_modes_amp_idx.py 661  781  128 191 13a
+LPython run_basin_modes_amp_idx.py 661  781  191 255 13b
+LPython run_basin_modes_amp_idx.py 781  901  128 191 14a
+LPython run_basin_modes_amp_idx.py 781  901  191 255 14b
+LPython run_basin_modes_amp_idx.py 901  1021 128 191 15a
+LPython run_basin_modes_amp_idx.py 901  1021 191 255 15b
+LPython run_basin_modes_amp_idx.py 1021 1141 128 191 16a
+LPython run_basin_modes_amp_idx.py 1021 1141 191 255 16b
+
+LPython run_basin_modes_pow_idx.py 781  901  0 64 5a
+LPython run_basin_modes_pow_idx.py 781  901  64 128 5b
+LPython run_basin_modes_pow_idx.py 901  1021 0 64 6a
+LPython run_basin_modes_pow_idx.py 901  1021 64 128 6b
+LPython run_basin_modes_pow_idx.py 1021 1141 0 64 7a
+LPython run_basin_modes_pow_idx.py 1021 1141 64 128 7b
+LPython run_basin_modes_pow_idx.py 1141 1261 0 64 8a
+LPython run_basin_modes_pow_idx.py 1141 1261 64 128 8b
+LPython run_basin_modes_pow_idx.py 421  541  128 191 11a
+LPython run_basin_modes_pow_idx.py 421  541  191 255 11b
+LPython run_basin_modes_pow_idx.py 541  661  128 191 12a
+LPython run_basin_modes_pow_idx.py 541  661  191 255 12b
+LPython run_basin_modes_pow_idx.py 661  781  128 191 13a
+LPython run_basin_modes_pow_idx.py 661  781  191 255 13b
+LPython run_basin_modes_pow_idx.py 781  901  128 191 14a
+LPython run_basin_modes_pow_idx.py 781  901  191 255 14b
+LPython run_basin_modes_pow_idx.py 901  1021 128 191 15a
+LPython run_basin_modes_pow_idx.py 901  1021 191 255 15b
+LPython run_basin_modes_pow_idx.py 1021 1141 128 191 16a
+LPython run_basin_modes_pow_idx.py 1021 1141 191 255 16b
+
+
+

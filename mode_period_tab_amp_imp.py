@@ -28,7 +28,7 @@ if periods_in_hours.empty:
     print("Nessun valore valido di periodo tra 0 e 40 ore trovato.")
     exit()
 
-# Rount periods to the second digit
+# Round periods to second digit
 rounded_periods = pd.Series(np.round(periods_in_hours, 2), name="Period")
 
 # Save full list (ordered by frequency)
@@ -42,16 +42,10 @@ print("Totale valori prima del filtro:", len(flattened_data))
 print("Dopo rimozione NaN:", periods_in_hours.shape[0])
 print("Valori min/max:", periods_in_hours.min(), periods_in_hours.max())
 
-# Plot 
+# --- Histogram of all periods ---
 plt.figure(figsize=(8, 4))
 bars = plt.bar(df_all["Period"], df_all["Count"],
                width=0.06, color="tab:orange", edgecolor="black")
-
-#for bar in bars:
-#    height = bar.get_height()
-#    if height > 2:  # mostra solo le più alte 
-#        plt.text(bar.get_x() + bar.get_width()/2, height + 0.5,
-#                 f"{int(height)}", ha='center', va='bottom', fontsize=8)
 
 plt.xlabel("Period (hours)")
 plt.ylabel("Frequency (grid points)")
@@ -59,50 +53,24 @@ plt.title("Frequency of Mode Periods in the Mediterranean Sea")
 plt.grid(axis="y", linestyle="--", alpha=0.6)
 plt.xticks(rotation=90)
 plt.tight_layout()
-
-# Salva la figura
 plt.savefig(os.path.join(indir, "hist_all_amp.png"), dpi=300)
 plt.show()
 
+# --- Group into ±0.5h bins centered on integer hours ---
+bins = np.arange(0.5, 40.5, 1.0)  # Bin edges: 0.5, 1.5, ..., 39.5
+labels = np.arange(1, 40)         # Bin centers: 1, 2, ..., 39
 
-# --- Group within ±0.5h ---
-sorted_periods = np.sort(periods_in_hours.values)
-
-groups = []
-current_group = [sorted_periods[0]]
-
-for p in sorted_periods[1:]:
-    if abs(p - current_group[-1]) <= 0.5:
-        current_group.append(p)
-    else:
-        groups.append(current_group)
-        current_group = [p]
-groups.append(current_group)  # Add the last group
-
-# Summarize groups
-group_summary = []
-for g in groups:
-    center = round(np.mean(g), 2)
-    count = len(g)
-    group_summary.append((center, count))
-
-df_grouped = pd.DataFrame(group_summary, columns=["Grouped_Period", "Count"])
+binned = pd.cut(periods_in_hours, bins=bins, labels=labels)
+df_grouped = binned.value_counts().sort_index().reset_index()
+df_grouped.columns = ["Grouped_Period", "Count"]
+df_grouped["Grouped_Period"] = df_grouped["Grouped_Period"].astype(float)
 df_grouped["%"] = (df_grouped["Count"] / df_grouped["Count"].sum() * 100).round(2)
-df_grouped = df_grouped.sort_values("Count", ascending=False).reset_index(drop=True)
 df_grouped.to_csv(os.path.join(indir, "periods_grouped30min_amp.csv"), index=False)
 
-# Plot grouped periods
-# Calcola distanza minima tra i centri (ordinati)
-grouped_periods = df_grouped["Grouped_Period"].sort_values().values
-if len(grouped_periods) > 1:
-    min_spacing = np.min(np.diff(grouped_periods))
-else:
-    min_spacing = 1.0  # fallback se c'è un solo valore
-
-# Plot grouped periods con width dinamico
+# --- Histogram of grouped periods ---
 plt.figure(figsize=(8, 4))
 plt.bar(df_grouped["Grouped_Period"], df_grouped["Count"],
-        width=min_spacing * 0.9, color="tab:blue", edgecolor="black")
+        width=0.9, color="tab:blue", edgecolor="black")
 
 plt.xlabel("Grouped Period (hours ±0.5h)")
 plt.ylabel("Frequency (grid points)")
@@ -110,7 +78,30 @@ plt.title("Frequency of Mode Periods in the Mediterranean Sea")
 plt.grid(axis="y", linestyle="--", alpha=0.6)
 plt.xticks(rotation=45)
 plt.tight_layout()
+plt.savefig(os.path.join(indir, "hist_grouped30min_amp.png"), dpi=300)
+plt.show()
 
-# Salva la figura
-plt.savefig(os.path.join(indir, "hist_grouped_amp.png"), dpi=300)
+# --- Group into ±1h bins centered on integer hours ---
+bins = np.arange(0, 41, 2.0)  # → bin edges: 0, 2, 4, ..., 40
+labels = np.arange(1, 40, 2)  # → bin centers: 1, 3, 5, ..., 39
+
+binned = pd.cut(periods_in_hours, bins=bins, labels=labels, right=False)
+df_grouped = binned.value_counts().sort_index().reset_index()
+df_grouped.columns = ["Grouped_Period", "Count"]
+df_grouped["Grouped_Period"] = df_grouped["Grouped_Period"].astype(float)
+df_grouped["%"] = (df_grouped["Count"] / df_grouped["Count"].sum() * 100).round(2)
+df_grouped.to_csv(os.path.join(indir, "periods_grouped1h_amp.csv"), index=False)
+
+# --- Histogram of grouped periods ---
+plt.figure(figsize=(8, 4))
+plt.bar(df_grouped["Grouped_Period"], df_grouped["Count"],
+        width=0.9, color="tab:blue", edgecolor="black")
+
+plt.xlabel("Grouped Period (hours ±1h)")
+plt.ylabel("Frequency (grid points)")
+plt.title("Frequency of Mode Periods in the Mediterranean Sea")
+plt.grid(axis="y", linestyle="--", alpha=0.6)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig(os.path.join(indir, "hist_grouped1h_amp.png"), dpi=300)
 plt.show()
