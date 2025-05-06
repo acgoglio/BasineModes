@@ -43,11 +43,13 @@ for idx in range(45):
         period = period_with_h.replace("h.png", "")  # e.g., '12'
 
         # Construct the expected file paths
-        file_ul = os.path.join(amp_dir, f"mode_flag_amp_{idx}_{period}h.png")  # upper left
-        file_ur = os.path.join(amp_dir, f"mode_amp_{idx}_{period}h.png")       # upper right
-        file_ll = os.path.join(amp_dir, f"mode_ampval_{idx}_{period}h.png")    # lower left
-        file_lr = os.path.join(pow_dir, f"mode_powval_{idx}_{period}h.png")    # lower right
-        out_file = os.path.join(out_dir, f"modes_all_{idx}_{period}h.png")
+        file_ul  = os.path.join(amp_dir, f"mode_flag_amp_{idx}_{period}h.png")  # upper left
+        file_ur  = os.path.join(amp_dir, f"mode_amp_{idx}_{period}h.png")       # upper right
+        file_ll  = os.path.join(amp_dir, f"mode_ampval_{idx}_{period}h.png")    # lower left
+        file_lr  = os.path.join(pow_dir, f"mode_powval_{idx}_{period}h.png")    # lower right
+        file_ll2 = os.path.join(amp_dir, f"mode_absampval_{idx}_{period}h.png") # lower lower left
+        file_lr2 = os.path.join(pow_dir, f"mode_absowpval_{idx}_{period}h.png") # lower lower right 
+        out_file = os.path.join(out_dir, f"modes_all5_{idx}_{period}h.png")
 
         # Check if all required files exist
         if not all(os.path.exists(p) for p in [file_ul, file_ur, file_ll, file_lr]):
@@ -55,17 +57,19 @@ for idx in range(45):
             continue
 
         # Create a 2x2 subplot figure
-        fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+        fig, axs = plt.subplots(3, 3, figsize=(12, 10))
 
         img_ul = crop_white_margins(Image.open(file_ul))
         img_ur = crop_white_margins(Image.open(file_ur))
         img_ll = crop_white_margins(Image.open(file_ll))
         img_lr = crop_white_margins(Image.open(file_lr))
+        img_ll2 = crop_white_margins(Image.open(file_ll2))
+        img_lr2 = crop_white_margins(Image.open(file_lr2))
 
         axs[0, 0].imshow(np.array(img_ul))
         axs[0, 0].axis('off')
 
-        axs[0, 1].imshow(np.array(img_ur))
+        #axs[0, 1].imshow(np.array(img_ur))
         axs[0, 1].axis('off')
 
         axs[1, 0].imshow(np.array(img_ll))
@@ -73,6 +77,12 @@ for idx in range(45):
 
         axs[1, 1].imshow(np.array(img_lr))
         axs[1, 1].axis('off')
+
+        axs[2, 0].imshow(np.array(img_ll2))
+        axs[2, 0].axis('off')
+
+        axs[2, 2].imshow(np.array(img_lr2))
+        axs[2, 2].axis('off')
 
         # Add the main title
         #fig.suptitle(f"Mode with period {period} h", fontsize=16)

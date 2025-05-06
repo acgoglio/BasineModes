@@ -79,7 +79,7 @@ plt.bar(df_greedy["Grouped_Period"], df_greedy["Count"],
 
 plt.xlabel(f"Grouped Period (hours ±{tolerance}h)")
 plt.ylabel("Frequency (grid points)")
-plt.title("Frequency of Mode Periods in the Mediterranean Sea (Greedy Grouping)")
+plt.title("Frequency of Mode Periods in the Mediterranean Sea (Grouped)")
 plt.grid(axis="y", linestyle="--", alpha=0.6)
 plt.xticks(rotation=45)
 plt.tight_layout()
