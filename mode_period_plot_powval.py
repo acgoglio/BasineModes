@@ -54,7 +54,7 @@ pow_fields = {f"pow_{gp:.2f}h": np.full(field_shape, np.nan) for gp in group_cen
 
 # --- Extract variables ---
 modes_vars = [var for var in ds.data_vars if var.startswith("m") and "_T" in var]
-pow_vars = {int(var[1]): var for var in ds.data_vars if var.startswith("m") and "_Ene" in var}
+pow_vars = {int(var[1]): var for var in ds.data_vars if var.startswith("m") and "_Amp" in var}
 
 # --- Assign values ---
 for var in modes_vars:

@@ -48,7 +48,7 @@ for idx in range(45):
         file_ll  = os.path.join(amp_dir, f"mode_ampval_{idx}_{period}h.png")    # lower left
         file_lr  = os.path.join(pow_dir, f"mode_powval_{idx}_{period}h.png")    # lower right
         file_ll2 = os.path.join(amp_dir, f"mode_absampval_{idx}_{period}h.png") # lower lower left
-        file_lr2 = os.path.join(pow_dir, f"mode_absowpval_{idx}_{period}h.png") # lower lower right 
+        file_lr2 = os.path.join(pow_dir, f"mode_abspowval_{idx}_{period}h.png") # lower lower right 
         out_file = os.path.join(out_dir, f"modes_all5_{idx}_{period}h.png")
 
         # Check if all required files exist
@@ -57,7 +57,7 @@ for idx in range(45):
             continue
 
         # Create a 2x2 subplot figure
-        fig, axs = plt.subplots(3, 3, figsize=(12, 10))
+        fig, axs = plt.subplots(3, 2, figsize=(12, 10))
 
         img_ul = crop_white_margins(Image.open(file_ul))
         img_ur = crop_white_margins(Image.open(file_ur))
@@ -81,8 +81,8 @@ for idx in range(45):
         axs[2, 0].imshow(np.array(img_ll2))
         axs[2, 0].axis('off')
 
-        axs[2, 2].imshow(np.array(img_lr2))
-        axs[2, 2].axis('off')
+        axs[2, 1].imshow(np.array(img_lr2))
+        axs[2, 1].axis('off')
 
         # Add the main title
         #fig.suptitle(f"Mode with period {period} h", fontsize=16)
