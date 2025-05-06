@@ -8,7 +8,7 @@ mpl.use("Agg")  # For non-interactive backend
 
 # Load dataset
 indir = "/work/cmcc/ag15419/basin_modes/"
-ds = xr.open_dataset(os.path.join(indir, "basin_modes_amp_med.nc"))
+ds = xr.open_dataset(os.path.join(indir, "basin_modes_pow_med.nc"))
 
 # Extract m?_T variables
 modes_vars = [var for var in ds.data_vars if var.startswith("m") and "_T" in var]
@@ -28,7 +28,7 @@ if periods_in_hours.empty:
     print("Nessun valore valido di periodo tra 0 e 40 ore trovato.")
     exit()
 
-# Rount periods to the second digit
+# Round periods to second digit
 rounded_periods = pd.Series(np.round(periods_in_hours, 2), name="Period")
 
 # Save full list (ordered by frequency)
@@ -36,22 +36,16 @@ df_all = rounded_periods.value_counts().reset_index()
 df_all.columns = ["Period", "Count"]
 df_all["%"] = (df_all["Count"] / df_all["Count"].sum() * 100).round(2)
 df_all = df_all.sort_values("Count", ascending=False).reset_index(drop=True)
-df_all.to_csv(os.path.join(indir, "periods_all_amp.csv"), index=False)
+df_all.to_csv(os.path.join(indir, "periods_all_pow.csv"), index=False)
 
 print("Totale valori prima del filtro:", len(flattened_data))
 print("Dopo rimozione NaN:", periods_in_hours.shape[0])
 print("Valori min/max:", periods_in_hours.min(), periods_in_hours.max())
 
-# Plot 
+# --- Histogram of all periods ---
 plt.figure(figsize=(8, 4))
 bars = plt.bar(df_all["Period"], df_all["Count"],
                width=0.06, color="tab:orange", edgecolor="black")
-
-#for bar in bars:
-#    height = bar.get_height()
-#    if height > 2:  # mostra solo le più alte 
-#        plt.text(bar.get_x() + bar.get_width()/2, height + 0.5,
-#                 f"{int(height)}", ha='center', va='bottom', fontsize=8)
 
 plt.xlabel("Period (hours)")
 plt.ylabel("Frequency (grid points)")
@@ -59,58 +53,35 @@ plt.title("Frequency of Mode Periods in the Mediterranean Sea")
 plt.grid(axis="y", linestyle="--", alpha=0.6)
 plt.xticks(rotation=90)
 plt.tight_layout()
-
-# Salva la figura
-plt.savefig(os.path.join(indir, "hist_all_amp.png"), dpi=300)
+plt.savefig(os.path.join(indir, "hist_all_pow.png"), dpi=300)
 plt.show()
 
+# --- Greedy grouping algorithm ---
+tolerance = 0.4
+remaining = rounded_periods.copy()
+greedy_groups = []
 
-# --- Group within ±0.5h ---
-sorted_periods = np.sort(periods_in_hours.values)
+while not remaining.empty:
+    mode = remaining.mode()[0]
+    group = remaining[np.abs(remaining - mode) <= tolerance]
+    greedy_groups.append((round(group.mean(), 2), len(group)))
+    remaining = remaining.drop(group.index)
 
-groups = []
-current_group = [sorted_periods[0]]
+df_greedy = pd.DataFrame(greedy_groups, columns=["Grouped_Period", "Count"])
+df_greedy["%"] = (df_greedy["Count"] / df_greedy["Count"].sum() * 100).round(2)
+df_greedy = df_greedy.sort_values("Count", ascending=False).reset_index(drop=True)
+df_greedy.to_csv(os.path.join(indir, "periods_grouped_greedy_pow.csv"), index=False)
 
-for p in sorted_periods[1:]:
-    if abs(p - current_group[-1]) <= 0.5:
-        current_group.append(p)
-    else:
-        groups.append(current_group)
-        current_group = [p]
-groups.append(current_group)  # Add the last group
-
-# Summarize groups
-group_summary = []
-for g in groups:
-    center = round(np.mean(g), 2)
-    count = len(g)
-    group_summary.append((center, count))
-
-df_grouped = pd.DataFrame(group_summary, columns=["Grouped_Period", "Count"])
-df_grouped["%"] = (df_grouped["Count"] / df_grouped["Count"].sum() * 100).round(2)
-df_grouped = df_grouped.sort_values("Count", ascending=False).reset_index(drop=True)
-df_grouped.to_csv(os.path.join(indir, "periods_grouped30min_amp.csv"), index=False)
-
-# Plot grouped periods
-# Calcola distanza minima tra i centri (ordinati)
-grouped_periods = df_grouped["Grouped_Period"].sort_values().values
-if len(grouped_periods) > 1:
-    min_spacing = np.min(np.diff(grouped_periods))
-else:
-    min_spacing = 1.0  # fallback se c'è un solo valore
-
-# Plot grouped periods con width dinamico
+# --- Histogram of greedy grouped periods ---
 plt.figure(figsize=(8, 4))
-plt.bar(df_grouped["Grouped_Period"], df_grouped["Count"],
-        width=min_spacing * 0.9, color="tab:blue", edgecolor="black")
+plt.bar(df_greedy["Grouped_Period"], df_greedy["Count"],
+        width=0.4, color="tab:green", edgecolor="black")
 
-plt.xlabel("Grouped Period (hours ±0.5h)")
+plt.xlabel(f"Grouped Period (hours ±{tolerance}h)")
 plt.ylabel("Frequency (grid points)")
-plt.title("Frequency of Mode Periods in the Mediterranean Sea")
+plt.title("Frequency of Mode Periods in the Mediterranean Sea (Greedy Grouping)")
 plt.grid(axis="y", linestyle="--", alpha=0.6)
 plt.xticks(rotation=45)
 plt.tight_layout()
-
-# Salva la figura
-plt.savefig(os.path.join(indir, "hist_grouped_amp.png"), dpi=300)
+plt.savefig(os.path.join(indir, "hist_grouped_greedy_pow.png"), dpi=300)
 plt.show()

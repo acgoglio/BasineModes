@@ -13,13 +13,13 @@ mpl.use("Agg")  # For non-interactive backend
 # --- Paths ---
 indir = "/work/cmcc/ag15419/basin_modes/"
 infile = os.path.join(indir, "basin_modes_pow_med.nc")
-csvfile = os.path.join(indir, "periods_all_pow.csv")
+csvfile = os.path.join(indir, "periods_grouped_greedy_pow.csv")
 outfile = os.path.join(indir, "mode_groups_pow.nc")
 mesh_mask_file = "/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc"
 bathy_file = "/work/cmcc/ag15419/VAA_paper/DATA0/bathy_meter.nc"
 output_plot_dir = os.path.join(indir, "mode_plots_pow")
 os.makedirs(output_plot_dir, exist_ok=True)
-
+tolerance = 0.4 # Greedy grouping algorithm (spectrum resolution)
 
 ##########################################
 # Truncate the colormap to exclude the lightest part (e.g. bottom 20%)
@@ -76,7 +76,7 @@ for var in modes_vars:
     pow_data = ds[pow_vars[mode_num]].values
 
     for gp in group_centers:
-        match = np.abs(period_data - gp) <= 0.5
+        match = np.abs(period_data - gp) <= tolerance
         if np.any(match):
             print(f"Mode {mode_num} matches group {gp:.2f}h in {np.sum(match)} points")
         fields[f"mode_{gp:.2f}h"][match] = mode_num

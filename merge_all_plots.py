@@ -31,7 +31,7 @@ def crop_white_margins(img):
 os.makedirs(out_dir, exist_ok=True)
 
 # Loop over all box indices from 0 to 22
-for idx in range(23):
+for idx in range(45):
     # Get all files related to this index from the amplitude directory
     all_files = os.listdir(amp_dir)
     files_idx = [f for f in all_files if f"_amp_{idx}_" in f]

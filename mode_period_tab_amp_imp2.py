@@ -56,52 +56,32 @@ plt.tight_layout()
 plt.savefig(os.path.join(indir, "hist_all_amp.png"), dpi=300)
 plt.show()
 
-# --- Group into ±0.5h bins centered on integer hours ---
-bins = np.arange(0.5, 40.5, 1.0)  # Bin edges: 0.5, 1.5, ..., 39.5
-labels = np.arange(1, 40)         # Bin centers: 1, 2, ..., 39
+# --- Greedy grouping algorithm ---
+tolerance = 0.4
+remaining = rounded_periods.copy()
+greedy_groups = []
 
-binned = pd.cut(periods_in_hours, bins=bins, labels=labels)
-df_grouped = binned.value_counts().sort_index().reset_index()
-df_grouped.columns = ["Grouped_Period", "Count"]
-df_grouped["Grouped_Period"] = df_grouped["Grouped_Period"].astype(float)
-df_grouped["%"] = (df_grouped["Count"] / df_grouped["Count"].sum() * 100).round(2)
-df_grouped.to_csv(os.path.join(indir, "periods_grouped30min_amp.csv"), index=False)
+while not remaining.empty:
+    mode = remaining.mode()[0]
+    group = remaining[np.abs(remaining - mode) <= tolerance]
+    greedy_groups.append((round(group.mean(), 2), len(group)))
+    remaining = remaining.drop(group.index)
 
-# --- Histogram of grouped periods ---
+df_greedy = pd.DataFrame(greedy_groups, columns=["Grouped_Period", "Count"])
+df_greedy["%"] = (df_greedy["Count"] / df_greedy["Count"].sum() * 100).round(2)
+df_greedy = df_greedy.sort_values("Count", ascending=False).reset_index(drop=True)
+df_greedy.to_csv(os.path.join(indir, "periods_grouped_greedy_amp.csv"), index=False)
+
+# --- Histogram of greedy grouped periods ---
 plt.figure(figsize=(8, 4))
-plt.bar(df_grouped["Grouped_Period"], df_grouped["Count"],
-        width=0.9, color="tab:blue", edgecolor="black")
+plt.bar(df_greedy["Grouped_Period"], df_greedy["Count"],
+        width=0.4, color="tab:green", edgecolor="black")
 
-plt.xlabel("Grouped Period (hours ±0.5h)")
+plt.xlabel(f"Grouped Period (hours ±{tolerance}h)")
 plt.ylabel("Frequency (grid points)")
-plt.title("Frequency of Mode Periods in the Mediterranean Sea")
+plt.title("Frequency of Mode Periods in the Mediterranean Sea (Greedy Grouping)")
 plt.grid(axis="y", linestyle="--", alpha=0.6)
 plt.xticks(rotation=45)
 plt.tight_layout()
-plt.savefig(os.path.join(indir, "hist_grouped30min_amp.png"), dpi=300)
-plt.show()
-
-# --- Group into ±1h bins centered on integer hours ---
-bins = np.arange(0, 41, 2.0)  # → bin edges: 0, 2, 4, ..., 40
-labels = np.arange(1, 40, 2)  # → bin centers: 1, 3, 5, ..., 39
-
-binned = pd.cut(periods_in_hours, bins=bins, labels=labels, right=False)
-df_grouped = binned.value_counts().sort_index().reset_index()
-df_grouped.columns = ["Grouped_Period", "Count"]
-df_grouped["Grouped_Period"] = df_grouped["Grouped_Period"].astype(float)
-df_grouped["%"] = (df_grouped["Count"] / df_grouped["Count"].sum() * 100).round(2)
-df_grouped.to_csv(os.path.join(indir, "periods_grouped1h_amp.csv"), index=False)
-
-# --- Histogram of grouped periods ---
-plt.figure(figsize=(8, 4))
-plt.bar(df_grouped["Grouped_Period"], df_grouped["Count"],
-        width=0.9, color="tab:blue", edgecolor="black")
-
-plt.xlabel("Grouped Period (hours ±1h)")
-plt.ylabel("Frequency (grid points)")
-plt.title("Frequency of Mode Periods in the Mediterranean Sea")
-plt.grid(axis="y", linestyle="--", alpha=0.6)
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.savefig(os.path.join(indir, "hist_grouped1h_amp.png"), dpi=300)
+plt.savefig(os.path.join(indir, "hist_grouped_greedy_amp.png"), dpi=300)
 plt.show()

@@ -13,13 +13,13 @@ mpl.use("Agg")  # For non-interactive backend
 # --- Paths ---
 indir = "/work/cmcc/ag15419/basin_modes/"
 infile = os.path.join(indir, "basin_modes_amp_med.nc")
-csvfile = os.path.join(indir, "periods_all_amp.csv")
+csvfile = os.path.join(indir, "periods_grouped_greedy_amp.csv")
 outfile = os.path.join(indir, "mode_groups_amp.nc")
 mesh_mask_file = "/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc"
 bathy_file = "/work/cmcc/ag15419/VAA_paper/DATA0/bathy_meter.nc"
 output_plot_dir = os.path.join(indir, "mode_plots_amp")
 os.makedirs(output_plot_dir, exist_ok=True)
-
+tolerance = 0.4 # Greedy grouping algorithm (spectrum resolution)
 ##########################################
 # Truncate the colormap to exclude the lightest part (e.g. bottom 20%)
 def truncate_colormap(cmap, minval=0.2, maxval=1.0, n=256):
@@ -75,7 +75,7 @@ for var in modes_vars:
     amp_data = ds[amp_vars[mode_num]].values
 
     for gp in group_centers:
-        match = np.abs(period_data - gp) <= 0.5
+        match = np.abs(period_data - gp) <= tolerance
         if np.any(match):
             print(f"Mode {mode_num} matches group {gp:.2f}h in {np.sum(match)} points")
         fields[f"mode_{gp:.2f}h"][match] = mode_num
@@ -107,8 +107,8 @@ for idx_gp,gp in enumerate(group_centers):
     plt.colorbar(label="Mode Number")
     plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000, 0.05], colors="gray")
     plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
-    #plt.title(f"Modes with Period: {gp:.1f} h ± 0.5 h")
-    plt.title(f"Modes with Period: {gp:.2f} h")
+    plt.title(f"Modes with Period: {gp:.1f} h ± 0.4 h")
+    #plt.title(f"Modes with Period: {gp:.2f} h")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
@@ -125,8 +125,8 @@ for idx_gp,gp in enumerate(group_centers):
     plt.contourf(nav_lon, nav_lat, presence_mask, levels=bounds, cmap=cmap_presence, norm=norm)
     plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000, 0.05], colors="gray")
     plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
-    #plt.title(f"Presence Map for Period: {gp:.1f} h ± 0.5 h")
-    plt.title(f"Presence Map for Period: {gp:.2f} h")
+    plt.title(f"Presence Map for Period: {gp:.1f} h ± 0.4 h")
+    #plt.title(f"Presence Map for Period: {gp:.2f} h")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
@@ -166,8 +166,8 @@ for idx_gp,gp in enumerate(group_centers):
     contour_levels = [400, 500]
     plt.contour(nav_lon, nav_lat, bathy, levels=contour_levels, colors="black", linewidths=0.5, linestyles="dotted")
 
-    #plt.title(f"Amplitude for Mode with Period: {gp:.1f} h ± 0.5 h")
-    plt.title(f"Amplitude for Mode with Period: {gp:.2f} h")
+    plt.title(f"Amplitude for Mode with Period: {gp:.1f} h ± 0.4 h")
+    #plt.title(f"Amplitude for Mode with Period: {gp:.2f} h")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
