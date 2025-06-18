@@ -3,15 +3,15 @@ import numpy as np
 import os
 
 # User flag to enable splitting of specific boxes
-flag_double = True  # Set to False to use standard 27 boxes
+flag_double = False  # Set to False to use standard 27 boxes
 
 # Define box edges (x and y)
 x_edges = [300, 421, 541, 661, 781, 901, 1021, 1141, 1261, 1307]
 y_edges = [0, 128, 255, 380]
 
 # Input and output paths
-indir = "/work/cmcc/ag15419/basin_modes_NBF/"
-outfile = "/work/cmcc/ag15419/basin_modes_NBF/basin_modes_pow_med.nc"
+indir = "/work/cmcc/ag15419/basin_modes_20not/"
+outfile = "/work/cmcc/ag15419/basin_modes_20not/basin_modes_pow_med.nc"
 
 # Open the base dataset (box 1)
 ds_full = xr.open_dataset(os.path.join(indir, "basin_modes_pow_1.nc")).copy(deep=True)

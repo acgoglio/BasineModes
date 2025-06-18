@@ -11,9 +11,9 @@ from matplotlib.colors import LogNorm
 mpl.use("Agg")  # For non-interactive backend
 
 # --- Paths ---
-indir = "/work/cmcc/ag15419/basin_modes/"
+indir = "/work/cmcc/ag15419/basin_modes_20not/"
 infile = os.path.join(indir, "basin_modes_pow_med.nc")
-csvfile = os.path.join(indir, "periods_grouped_greedy_pow.csv")
+csvfile = os.path.join(indir, "periods_grouped_pow.csv")
 outfile = os.path.join(indir, "mode_groups_pow.nc")
 mesh_mask_file = "/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc"
 bathy_file = "/work/cmcc/ag15419/VAA_paper/DATA0/bathy_meter.nc"
@@ -106,22 +106,24 @@ for idx_gp, gp in enumerate(group_centers):
     mode_field = fields[f"mode_{gp:.2f}h"]
     pow_field = pow_fields[f"pow_{gp:.2f}h"]
 
-    plt.figure(figsize=(10, 4))
-    cmap = mpl.cm.get_cmap("Reds_r")
-    cmap.set_bad("white")
-    masked_field = np.ma.masked_invalid(mode_field)
-    plt.contourf(nav_lon, nav_lat, masked_field, levels=np.arange(0, 9), cmap=cmap, extend="neither")
-    plt.colorbar(label="Mode Number")
-    plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000, 0.05], colors="gray")
-    plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
-    plt.title(f"Modes with Period: {gp:.1f} h ± 0.4 h")
-    plt.xlabel("Longitude")
-    plt.ylabel("Latitude")
-    plt.xlim(-6, 36.3)
-    plt.ylim(30, 46)
-    plt.savefig(os.path.join(output_plot_dir, f"mode_pow_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
-    plt.close()
+    # Modes
+    #plt.figure(figsize=(10, 4))
+    #cmap = mpl.cm.get_cmap("Reds_r")
+    #cmap.set_bad("white")
+    #masked_field = np.ma.masked_invalid(mode_field)
+    #plt.contourf(nav_lon, nav_lat, masked_field, levels=np.arange(0, 9), cmap=cmap, extend="neither")
+    #plt.colorbar(label="Mode Number")
+    #plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000, 0.05], colors="gray")
+    #plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
+    #plt.title(f"Modes with Period: {gp:.1f} h ± 0.4 h")
+    #plt.xlabel("Longitude")
+    #plt.ylabel("Latitude")
+    #plt.xlim(-6, 36.3)
+    #plt.ylim(30, 46)
+    #plt.savefig(os.path.join(output_plot_dir, f"mode_pow_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
+    #plt.close()
 
+    # Presence 
     presence_mask = (~np.isnan(mode_field)).astype(int)
     plt.figure(figsize=(10, 4))
     cmap_presence = mpl.colors.ListedColormap(["white", "tab:blue"])
@@ -130,20 +132,50 @@ for idx_gp, gp in enumerate(group_centers):
     plt.contourf(nav_lon, nav_lat, presence_mask, levels=bounds, cmap=cmap_presence, norm=norm)
     plt.contourf(nav_lon, nav_lat, tmask, levels=[-1000, 0.05], colors="gray")
     plt.contour(nav_lon, nav_lat, tmask, levels=[0.05], colors="black", linewidths=0.8)
-    plt.title(f"Presence Map for Period: {gp:.1f} h ± 0.4 h")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
     plt.ylim(30, 46)
-    plt.savefig(os.path.join(output_plot_dir, f"mode_flag_pow_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
+
+    # Grid points count
+    # Define spatial boundaries for the Mediterranean domain
+    lon_min, lon_max = -6, 36.3
+    lat_min, lat_max = 30, 46
+    # Select only points within the Mediterranean bounding box
+    spatial_mask = (nav_lon >= lon_min) & (nav_lon <= lon_max) & \
+                   (nav_lat >= lat_min) & (nav_lat <= lat_max)
+    # Exclude the Atlantic Ocean area (west of 0°E and north of 42°N)
+    atlantic_exclusion = (nav_lon < 0) & (nav_lat > 42)
+    # Select valid sea points in the Mediterranean, excluding the Atlantic
+    sea_mask = (tmask == 1) & spatial_mask & (~atlantic_exclusion)
+    # Mask where the mode field is valid (not NaN) and corresponds to sea points
+    presence_mask_valid = (~np.isnan(mode_field)) & sea_mask
+    # Count total sea points (excluding Atlantic)
+    total_sea_points = np.sum(sea_mask)
+    # Count number of valid (non-NaN) mode points in the sea
+    presence_count = np.sum(presence_mask_valid)
+    # %
+    if total_sea_points > 0:
+       presence_percentage = 100 * presence_count / total_sea_points
+    else:
+       presence_percentage = np.nan
+    # Output
+    print(f"Presence points: {presence_count}")
+    print(f"Total sea points: {total_sea_points}")
+    print(f"Presence percentage: {presence_percentage:.1f}%") 
+   
+    plt.title(f"Presence Map for Period: {gp:.1f} h ± 0.4 h ({presence_percentage:.1f}%)")
+    plt.savefig(os.path.join(output_plot_dir, f"mode_flag_pow_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight") #{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
     plt.close()
 
+
+    # Rel energy
     plt.figure(figsize=(10, 4))
-    pow_percent = pow_field / np.nanmax(pow_field) * 100
     all_pow_vals.append(pow_field)
+    pow_percent = pow_field / np.nanmax(pow_field) * 100
     masked_pow_pct = np.ma.masked_invalid(pow_percent)
     cmap_pow_pct = mpl.cm.get_cmap("gist_stern_r")
-    cmap_pow_pct = truncate_colormap(cmap_pow_pct, 0.3, 0.95)
+    cmap_pow_pct = truncate_colormap(cmap_pow_pct, 0.05, 0.95)
     cmap_pow_pct.set_bad("white")
 
     im = plt.contourf(nav_lon, nav_lat, masked_pow_pct, levels=np.linspace(0, 100, 41), cmap=cmap_pow_pct)
@@ -162,7 +194,7 @@ for idx_gp, gp in enumerate(group_centers):
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
     plt.ylim(30, 46)
-    plt.savefig(os.path.join(output_plot_dir, f"mode_powval_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_plot_dir, f"mode_powrelval_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight") #{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
     plt.close()
 
 all_pow_vals=np.array(all_pow_vals)
@@ -180,7 +212,7 @@ for idx_gp, gp in enumerate(group_centers):
     pow_percent = pow_field / all_pow_vals_max * 100
     masked_pow_pct = np.ma.masked_invalid(pow_percent)
     cmap_pow_pct = mpl.cm.get_cmap("gist_stern_r")
-    cmap_pow_pct = truncate_colormap(cmap_pow_pct, 0.3, 0.95)
+    cmap_pow_pct = truncate_colormap(cmap_pow_pct, 0.05, 0.95)
     cmap_pow_pct.set_bad("white")
 
     im = plt.contourf(nav_lon, nav_lat, masked_pow_pct, levels=np.linspace(0, 100, 41), cmap=cmap_pow_pct)
@@ -199,6 +231,5 @@ for idx_gp, gp in enumerate(group_centers):
     plt.ylabel("Latitude")
     plt.xlim(-6, 36.3)
     plt.ylim(30, 46)
-    plt.savefig(os.path.join(output_plot_dir, f"mode_abspowval_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
+    plt.savefig(os.path.join(output_plot_dir, f"mode_abspowval_{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight") #{idx_gp}_{gp:.2f}h.png"), dpi=300, bbox_inches="tight")
     plt.close()
-

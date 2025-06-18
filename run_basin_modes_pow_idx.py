@@ -27,14 +27,14 @@ max_lat = int(sys.argv[4])
 box_idx = str(sys.argv[5])
 
 # Workdir, otufile template and otfile name
-work_dir='/work/cmcc/ag15419/basin_modes_NBF/'
+work_dir='/work/cmcc/ag15419/basin_modes_20not/'
 infile_amppha='/work/cmcc/ag15419/basin_modes/basin_modes_ini.nc'
 outfile=work_dir+'basin_modes_pow_'+box_idx+'.nc'
 
 # Infiles
-start_date = "20150103"
-end_date = "20150301"
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+start_date = "20150121"
+end_date = "20150221"
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB_2/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 mesh_mask = "/work/cmcc/ag15419/VAA_paper/DATA0/mesh_mask.nc"
 
 # Model time step in seconds

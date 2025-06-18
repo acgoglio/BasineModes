@@ -4,12 +4,13 @@ import os
 workdir='/work/cmcc/ag15419/basin_modes/plots_area/'
 
 image_folder = workdir 
-video_name = workdir+'ssh_BF.avi'
-images = [img for img in sorted(os.listdir(image_folder)) if img.endswith(".png") and img.startswith("ssh_")] 
+video_name = workdir+'ssh_GB_BF.mp4'
+images = [img for img in sorted(os.listdir(image_folder)) if img.endswith("Med_Gibraltar.png") and img.startswith("ssh_")] 
 frame = cv2.imread(os.path.join(image_folder, images[0]))
 height, width, layers = frame.shape
 
-video = cv2.VideoWriter(video_name, 0, 10,(width,height))
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+video = cv2.VideoWriter(video_name, fourcc, 5, (width, height))
 
 for image in images:
     print ('Infile: ',image)

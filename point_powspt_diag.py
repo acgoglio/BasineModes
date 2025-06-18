@@ -15,14 +15,14 @@ from scipy.signal import find_peaks
 mpl.use('Agg')
 
 ########
-work_dir='/work/cmcc/ag15419/basin_modes/plots/'
+work_dir='/work/cmcc/ag15419/basin_modes_20not/plots/'
 
 # Inputs and outputs
-start_date = "20150103" 
-end_date = "20150201" 
+start_date = "20150121" 
+end_date = "20150221" 
 # BF
-#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
-all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1ts_20*_2D_grid_T.nc"))
+all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB_2/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
+#all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00_BF/20*/model/medfs-eas9_1ts_20*_2D_grid_T.nc"))
 # NO BF
 #all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2NT_AB/EXP00/20*/model/medfs-eas9_1h_20*_2D_grid_T.nc"))
 # BFf
@@ -34,14 +34,14 @@ all_files = sorted(glob.glob("/work/cmcc/ag15419/exp/fix_mfseas9_longrun_hmslp_2
 
 # Exp tag
 Med_reg=str(sys.argv[3])
-exp='BF_1ts_'+Med_reg
+exp='BF20_1h_'+Med_reg
 
 # Lat and lon indexes
 lat_idx = int(sys.argv[2]) 
 lon_idx = int(sys.argv[1]) 
 
 # Model time step in seconds
-dt = 90 #90 60*60 
+dt = 3600 #90 60*60 
 
 # Number of modes to analyze
 n_modes = 8

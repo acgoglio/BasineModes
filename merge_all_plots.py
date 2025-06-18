@@ -30,59 +30,69 @@ def crop_white_margins(img):
 # Make sure the output directory exists
 os.makedirs(out_dir, exist_ok=True)
 
-# Loop over all box indices from 0 to 22
+# Loop over periods:
 for idx in range(45):
+    print ('Working on idx:',idx)
     # Get all files related to this index from the amplitude directory
     all_files = os.listdir(amp_dir)
-    files_idx = [f for f in all_files if f"_amp_{idx}_" in f]
+    print ('all_files',all_files)
+    files_idx = [f for f in all_files if f"_amprelval_{idx}_" in f]
+    print ('files_idx',files_idx)
 
     for f in files_idx:
         # Extract the period from the filename
         parts = f.split("_")
         period_with_h = parts[-1]  # e.g., '12h.png'
         period = period_with_h.replace("h.png", "")  # e.g., '12'
+        print ('Period:',period,'h')
 
         # Construct the expected file paths
-        file_ul  = os.path.join(amp_dir, f"mode_flag_amp_{idx}_{period}h.png")  # upper left
-        file_ur  = os.path.join(amp_dir, f"mode_amp_{idx}_{period}h.png")       # upper right
-        file_ll  = os.path.join(amp_dir, f"mode_ampval_{idx}_{period}h.png")    # lower left
-        file_lr  = os.path.join(pow_dir, f"mode_powval_{idx}_{period}h.png")    # lower right
+        #file_ul  = os.path.join(amp_dir, f"mode_flag_amp_{idx}_{period}h.png")  # upper left
+        #file_ur  = os.path.join(amp_dir, f"mode_amp_{idx}_{period}h.png")       # upper right
+        file_ll  = os.path.join(amp_dir, f"mode_amprelval_{idx}_{period}h.png")    # lower left
+        file_lr  = os.path.join(pow_dir, f"mode_powrelval_{idx}_{period}h.png")    # lower right
         file_ll2 = os.path.join(amp_dir, f"mode_absampval_{idx}_{period}h.png") # lower lower left
         file_lr2 = os.path.join(pow_dir, f"mode_abspowval_{idx}_{period}h.png") # lower lower right 
-        out_file = os.path.join(out_dir, f"modes_all5_{idx}_{period}h.png")
+        out_file = os.path.join(out_dir, f"modes_all2_{period}h.png")
 
         # Check if all required files exist
-        if not all(os.path.exists(p) for p in [file_ul, file_ur, file_ll, file_lr]):
+        if not all(os.path.exists(p) for p in [file_ll, file_lr, file_ll2, file_lr2]):
             print(f"Some files are missing for IDX={idx}, PERIOD={period}h. Skipping.")
             continue
 
         # Create a 2x2 subplot figure
-        fig, axs = plt.subplots(3, 2, figsize=(12, 10))
+        fig, axs = plt.subplots(1, 2, figsize=(12, 6)) #figsize=(12, 10)
 
-        img_ul = crop_white_margins(Image.open(file_ul))
-        img_ur = crop_white_margins(Image.open(file_ur))
+        #img_ul = crop_white_margins(Image.open(file_ul))
+        #img_ur = crop_white_margins(Image.open(file_ur))
         img_ll = crop_white_margins(Image.open(file_ll))
         img_lr = crop_white_margins(Image.open(file_lr))
         img_ll2 = crop_white_margins(Image.open(file_ll2))
         img_lr2 = crop_white_margins(Image.open(file_lr2))
 
-        axs[0, 0].imshow(np.array(img_ul))
-        axs[0, 0].axis('off')
+        #axs[0, 0].imshow(np.array(img_ul))
+        #axs[0, 0].axis('off')
 
         #axs[0, 1].imshow(np.array(img_ur))
-        axs[0, 1].axis('off')
+        #axs[0, 1].axis('off')
 
-        axs[1, 0].imshow(np.array(img_ll))
-        axs[1, 0].axis('off')
+        #axs[0, 0].imshow(np.array(img_ll))
+        #axs[0, 0].axis('off')
 
-        axs[1, 1].imshow(np.array(img_lr))
-        axs[1, 1].axis('off')
+        #axs[0, 1].imshow(np.array(img_lr))
+        #axs[0, 1].axis('off')
 
-        axs[2, 0].imshow(np.array(img_ll2))
-        axs[2, 0].axis('off')
+        #axs[1, 0].imshow(np.array(img_ll2))
+        #axs[1, 0].axis('off')
 
-        axs[2, 1].imshow(np.array(img_lr2))
-        axs[2, 1].axis('off')
+        #axs[1, 1].imshow(np.array(img_lr2))
+        #axs[1, 1].axis('off')
+
+        axs[0].imshow(np.array(img_ll))
+        axs[0].axis('off')
+
+        axs[1].imshow(np.array(img_lr))
+        axs[1].axis('off')
 
         # Add the main title
         #fig.suptitle(f"Mode with period {period} h", fontsize=16)
